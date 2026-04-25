@@ -1,31 +1,41 @@
 clear;
 clc;
-%abrir_archivo(ruta); DONE
-%char[], proba[] lectura_archivo(archivo); DONE
-%float calcular_entropia_fuente(proba[]); DONE
-%dict huffmandict(); DONE
-%float longitud_minima(dict); DONE
-%float longitud_promedio(dict); DONE
-%palabras[] codificar(archivo, dict); DONE
 nombre_archivo_in = "hola.txt";
 nombre_archivo_out = "chau.txt";
 
-archivo = abrir_archivo_lectura(nombre_archivo_in);
+%% CODIFICACIÓN DE FUENTE
 
-[caracteres, probabilidades, cantidad_caracteres_distintos] = leer_archivo(archivo)
+archivo = abrir_archivo_lectura(nombre_archivo_in);
+%se obtienen los distintos caracteres con su probabilidad de ocurrencia y
+%la cantidad de caracteres distintos de la fuente
+[caracteres, probabilidades, cantidad_caracteres_distintos] = leer_archivo(archivo);
 %verificación de la suma de las probabilidades
 verificacion_suma(probabilidades);
-
+% se calcula la entropía de la fuente
 entropia = calcular_entropia_fuente(probabilidades);
-
+% se arma el diccionario de Huffman y se buscan las longitudes mínima y
+% promedio
 disp('Armando el diccionario de Huffman...')
-[dict, avglen] = huffmandict(caracteres, probabilidades)
+[dict, avglen] = huffmandict(caracteres, probabilidades);
 disp('Buscando las longitudes mínima y promedio...')
 longitud_minima = entropia / log2(2) % = entropia
 longitud_promedio = avglen
 eficiencia = entropia / avglen;
-
+%se codifica el archivo en función del diccionario armado
 codificar_archivo(nombre_archivo_in, nombre_archivo_out, dict, cantidad_caracteres_distintos)
+
+
+%% DECODIFICACIÓN DE FUENTE
+%hasta acá hicimos la codificación del canal, ahora toca decodificar :D 
+
+ nombre_archivo_in_deco = nombre_archivo_out;
+ nombre_archivo_out_deco = "salida_decodificacion.txt";
+
+decodificar_archivo(nombre_archivo_in_deco, nombre_archivo_out_deco, dict, cantidad_caracteres_distintos)
+
+
+
+%% FUNCIONES DE CODIFICACIÓN DE FUENTE 
 
 function archivo = abrir_archivo_lectura(nombre_archivo);
     disp('Abriendo archivo...')
@@ -85,9 +95,9 @@ function codificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccio
     archivo_salida = fopen(nombre_archivo_salida, 'w');
     caracter = fread(archivo_entrada, 1, '*char');
     while caracter ~= char(0)
-        posicion_en_dic = 4;
+        posicion_en_dic = 0;
         for i= 1:cant_distintos
-            dict_char = diccionario{i,1};
+            dict_char = diccionario{i,1}; %columna 1 valor original, columna 2 valor original codificado
             int_char = uint8(caracter);
             if dict_char == int_char
                 posicion_en_dic = i;
@@ -99,6 +109,47 @@ function codificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccio
         caracter = fread(archivo_entrada, 1, '*char');
     end
     fwrite(archivo_salida, char(0), 'char');
+    disp('Cerrando archivos...')
     fclose(archivo_salida);
     fclose(archivo_entrada);
 end
+
+
+%% FUNCIONES DE DECODIFICACIÓN DE FUENTE
+%acá hicimos en la misma función la decodificación y el guardado en el
+%archivo de texto... hay que preguntar si no hay problema o si quiere que
+%lo guardemos en un vector para después imprimirlo
+function decodificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccionario, cant_distintos)
+     disp('Decodificando el archivo usando el diccionario de Huffman')
+    archivo_entrada = abrir_archivo_lectura(nombre_archivo_entrada);
+    archivo_salida = fopen(nombre_archivo_salida, 'w');
+    caracter = fread(archivo_entrada, 1, '*char');
+    % variable para ir guardando "cadena" para poder compararla con
+    % diccionario de Huffman
+    simbolo_codificado = '';
+    while caracter ~= char(0)
+       simbolo_codificado = [simbolo_codificado, caracter];
+       posicion_en_dic = 0;
+        for i= 1:cant_distintos
+            dict_char = sprintf('%d', diccionario{i,2}); %columna 1 valor original, columna 2 valor original codificado
+            if strcmp(dict_char, simbolo_codificado)
+                posicion_en_dic = i;
+            end
+            if posicion_en_dic ~= 0
+                %Se encontró match en el diccionario de Huffman para el
+                %símbolo actual
+                palabra = sprintf('%c', diccionario{posicion_en_dic, 1});
+                fwrite(archivo_salida, palabra, 'char');
+                simbolo_codificado = '';
+                posicion_en_dic = 0;
+            end
+        end
+        caracter = fread(archivo_entrada, 1, '*char');
+    end
+    fwrite(archivo_salida, char(0), 'char');
+    disp('Cerrando archivos...')
+    fclose(archivo_salida);
+    fclose(archivo_entrada);    
+
+end
+
