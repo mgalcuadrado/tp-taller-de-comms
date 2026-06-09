@@ -1,0 +1,33 @@
+%% EFECTOS DEL CANAL 
+
+%distribución uniforme entre min y max (para la atenuación)
+min= 0.5;
+max=0.9;
+
+v = No/2; %No, la verdad es que yo *No* TE CONOZCO 
+
+
+muestra_ruido_termico = generacion_ruido_termico(v, N);
+muestra_atenuacion = generacion_atenuacion();
+
+%generacion_ruido_termico() recibe una varianza v y dimensión n y genera
+%una muestra aleatoria de ruido térmico con función de distribución
+%Gaussiana de media nula, varianza v y dimensión n. 
+function ruido = generacion_ruido_termico(v, N)
+    disp('Generando muestra aleatoria de ruido térmico')
+    ruido = sqrt(v) * randn(1, N);
+end
+
+%generacion_atenuacion() genera una atenuación aleatoria en el canal con
+%distribución uniforme entre los valores min y max. 
+function atenuacion = generacion_atenuacion(min, max)
+    disp('Generando muestra aleatoria de atenuación')
+    atenuacion = min + (max-min) * rand();
+    disp('La atenuación introeducida al canal es de', atenuacion);
+
+    
+end
+
+
+
+
