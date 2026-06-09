@@ -1,25 +1,31 @@
-    entrada=[0,0,1,1,1,0,0,1,0,0,0,0];
-    entradaM=4;
+
+%Main
+
+%Parámetros y entrada
+entrada=[0,0,1,1,1,0,0,1,0,0,0,0];
+entradaM=16;
 
 
-% vector_digitos = [0011];
-% num=0;
-% while num > 0
-%     vector_digitos = [mod(num,10) vector_digitos];
-%     num = floor(num/10);
-% end
-% 
-% disp(vector_digitos)
+
+[simbolosModulados,simbolosOriginales] = modularMPSK(entrada, entradaM,'nogray','PSK');
+
+[energiaSimbolo,energiaBit]=calcularEnergias(simbolosModulados,entradaM)
+
+%agreggo ruido para probar
+transmisionRuidosa=awgn(simbolosModulados,5);
 
 
-a= modularMPSK(entrada, entradaM,'nogray','FSK')
+[bitsRec, simbolosDetectados] = demodularMPSK(transmisionRuidosa,entradaM,'nogray','PSK')
 
-a=awgn(a,1000)
+disp('El error de símbolo se estima en');
+errorSimbolo(simbolosOriginales,simbolosDetectados)
 
-bitsRec = demodularMPSK(a,entradaM,'nogray','FSK')
+disp('El error de bit se estima en:');
+errorBit(entrada,bitsRec)
+%%
+%Moudulación
 
-
-function [simbolosModulados, constelacion] = modularMPSK(bits, M, mapeoTipo, modulacionTipo)
+function [simbolosModulados, bitsAlineados] = modularMPSK(bits, M, mapeoTipo, modulacionTipo)
     
 
 
@@ -69,7 +75,8 @@ end
 %%
 %Decodificación
 
-function bitsRecuperados = demodularMPSK(simbolos, M, mapeoTipo, modulacionTipo)
+function [bitsRecibidos, simbolosDetectados] = demodularMPSK(simbolos, M, mapeoTipo, modulacionTipo)
+
 
     k = log2(M);
     numSimbolos = size(simbolos, 1);
@@ -118,6 +125,50 @@ function bitsRecuperados = demodularMPSK(simbolos, M, mapeoTipo, modulacionTipo)
     simbolosDetectados = de2bi(simbolosDetectados,'left-msb');
 
 
-    bitsRecuperados= reshape(simbolosDetectados',1,[]);
+    bitsRecibidos= reshape(simbolosDetectados',1,[]);
     
+end
+
+%%
+%Energía de símbolo/bit
+
+function [eSimbolo, eBit] = calcularEnergias(simbolosModulados, M)
+
+    
+    k = log2(M);
+    
+    % Norma al cuadrado de cada simbolo y se suma
+    eSimbolosTotal = sum(simbolosModulados.^2, 2);
+    
+    eSimbolo = mean(eSimbolosTotal);
+   
+    eBit = eSimbolo / k;
+end
+
+
+function SER = errorSimbolo(simbolosTransmitidos, simbolosDemodulados)
+
+    numSimbolos = size(simbolosTransmitidos, 1);
+    
+    % Busco qué filas son diferentes
+    diferencias = sum(abs(simbolosTransmitidos - simbolosDemodulados), 2);
+    diferencias = diferencias>0.001;
+
+    % Cuento los que tienen errores
+    simbolosError = sum(diferencias);
+    
+    % Estimo la tasa de error
+    SER = simbolosError / numSimbolos;
+end
+
+
+function BER = errorBit(bitsTransmitidos, bitsRecibidos)
+   
+    numBits=length(bitsTransmitidos);
+    
+    %Los bits erroneos son los que son distintos
+    bitsErroneos=sum(bitsRecibidos~=bitsTransmitidos);
+    
+    %Estimo el error de bit
+    BER=bitsErroneos/numBits;
 end
