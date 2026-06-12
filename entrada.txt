@@ -1,0 +1,21 @@
+Aula Virtual de la asignatura "TA137 - Taller de Comunicaciones Digitales" ("86.25 - Comunicaciones Digitales I", para aquellos alumnos del Plan 2009).
+
+
+Docentes:
+Lunes: Profesor Dr. Ing. Gustavo Abraham Hirchoren
+Miércoles: JTP Mg. Ing. Leonel Enrique Hochman
+
+Bibliografía sugerida:
+
+    Bernard Sklar. Digital Communications: Fundamentals and Applications. Prentice Hall, 2001.
+    John G. Proakis. Digital Communications. Mcgraw Hill, 5ta edición, 2008.
+    Notas de apoyo: John Cioffi. https://cioffi-group.stanford.edu/
+    Comunicaciones analógicas: B. P. Lathi. Introducción a la Teoría y Sistemas de Comunicación. Ed. Limusa, 2005. F. G. Stremler, Introducción a los sistemas de comunicación.
+    Sincronización: Ph.D Floyd M. Gardner. Phaselock Techniques. John Wiley and Sons, third edition, 2005.
+
+ 
+ 
+
+- Para la aprobación de la cursada se debe aprobar un Proyecto integrador de simulación con software System View, Matlab, Octave, Python u otros, o bien componentes electrónicos modulares. Al finalizar el Proyecto, los alumnos deberán realizar una defensa individual del mismo. La nota de aprobación es de 4 (cuatro) / 10 (diez).
+
+- La materia se aprobará mediante un examen Final integrador y escrito, el cual abarcará todo el programa de contenidos y consistirá en la resolución de ejercicios prácticos y desarrollo de conceptos teóricos, demostraciones y justificaciones. Para aprobar será necesario alcanzar, como mínimo, el 40% del puntaje de cada ejercicio.

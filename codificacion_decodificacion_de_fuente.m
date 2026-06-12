@@ -1,7 +1,7 @@
 clear;
 clc;
-nombre_archivo_in = "hola.txt";
-nombre_archivo_out = "chau.txt";
+nombre_archivo_in = "entrada.txt";
+nombre_archivo_out = "salida.txt";
 
 %% CODIFICACIÓN DE FUENTE
 
@@ -24,7 +24,6 @@ eficiencia = entropia / avglen;
 %se codifica el archivo en función del diccionario armado
 codificar_archivo(nombre_archivo_in, nombre_archivo_out, dict, cantidad_caracteres_distintos)
 
-
 %% DECODIFICACIÓN DE FUENTE
 %hasta acá hicimos la codificación del canal, ahora toca decodificar :D 
 
@@ -33,7 +32,7 @@ codificar_archivo(nombre_archivo_in, nombre_archivo_out, dict, cantidad_caracter
 
 decodificar_archivo(nombre_archivo_in_deco, nombre_archivo_out_deco, dict, cantidad_caracteres_distintos)
 
-
+verificar_archivos()
 
 %% FUNCIONES DE CODIFICACIÓN DE FUENTE 
 
@@ -146,10 +145,23 @@ function decodificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, dicc
         end
         caracter = fread(archivo_entrada, 1, '*char');
     end
-    fwrite(archivo_salida, char(0), 'char');
+    %fwrite(archivo_salida, char(0), 'char');
     disp('Cerrando archivos...')
     fclose(archivo_salida);
     fclose(archivo_entrada);    
 
 end
 
+
+function verificar_archivos()
+
+    txt1 = strtrim(fileread('entrada.txt'));
+    txt2 = strtrim(fileread('salida_decodificacion.txt'));
+
+    if isequal(txt1, txt2)
+        fprintf('Los archivos son iguales.\n');
+    else
+        fprintf('Los archivos son diferentes.\n');
+    end
+
+end
