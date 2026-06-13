@@ -3,8 +3,8 @@ clc;
 nombre_archivo_in_codificacion = "entrada.txt";
 nombre_archivo_out_codificacion = "salida_codificacion.txt";
 
-nombre_archivo_in_decodificacion = "salida_codificacion.txt";
-nombre_archivo_out_decodificacion = "salida_decodificacion.txt";
+
+nombre_archivo_in_decodificacion = 
 
 %% CODIFICACIÓN DE FUENTE
 
@@ -25,13 +25,16 @@ longitud_minima = entropia / log2(2) % = entropia
 longitud_promedio = avglen
 eficiencia = entropia / avglen;
 %se codifica el archivo en función del diccionario armado
-arreglo_codificado = codificar_archivo(nombre_archivo_in_codificacion, nombre_archivo_out_codificacion, dict, cantidad_caracteres_distintos);
+arreglo_codificado = codificar_archivo(nombre_archivo_in, nombre_archivo_out_codificacion, dict, cantidad_caracteres_distintos);
 %%%%Cómo me paso este arreglo archivo_coddificado entre etapas en los
 %%%%bloques? Se puede?
 %% DECODIFICACIÓN DE FUENTE
 %hasta acá hicimos la codificación del canal, ahora toca decodificar :D 
 
-decodificar_archivo(nombre_archivo_in_decodificacion, nombre_archivo_out_decodificacion, dict, cantidad_caracteres_distintos)
+ nombre_archivo_in_deco = nombre_archivo_out;
+ nombre_archivo_out_deco = "salida_decodificacion.txt";
+
+decodificar_archivo(nombre_archivo_in_deco, nombre_archivo_out_deco, dict, cantidad_caracteres_distintos)
 
 verificar_archivos()
 
