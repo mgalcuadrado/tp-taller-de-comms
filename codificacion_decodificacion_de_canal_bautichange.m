@@ -25,7 +25,7 @@ n = 15;
 %% PASO EXTRA PORQUE TODAVÍA NO ESTAMOS TRABAJANDO EN LOS MÓDULOS: 
 % VOY A LEVANTAR LA SALIDA DE LA FUENTE Y METERLA EN UN ARREGLO PARA 
 % DESPUÉS PASARNOS EL ARREGLO ENTRE BLOQUES DIRECTAMENTE
-arreglo_ejemplo = archivo_bits_a_arreglo(entrada_codificacion);
+arreglo_ejemplo = archivo_a_arreglo(entrada_codificacion);
 arreglo_prueba = [1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0,0, 0, 0, 1]
 arreglo_salida_codif_canal = codificacion_Hamming_completa(arreglo_ejemplo, k, n, G)
 arreglo_a_archivo(arreglo_salida_codif_canal, salida_codificacion_canal)
@@ -34,31 +34,19 @@ arreglo_a_archivo(arreglo_salida_decodif_canal, salida_decodificacion)
 
 
 function arreglo_salida = codificacion_Hamming_completa(arreglo, k, n, G)
-    size_arr_entrada = size(arreglo, 2)
-    suma_extra = 0 
+    suma_extra = 0;
     if mod(size(arreglo, 2), k)~= 0 
-        suma_extra = n
+        suma_extra = n;
     end
-    size_salida = int32(suma_extra + n * ceil(size(arreglo, 2) / k)) %acá chequear en función de qué hacemos con el último bloque que va a quedar incompleto
+    size_salida = int32(suma_extra + n * ceil(size(arreglo, 2) / k)); %acá chequear en función de qué hacemos con el último bloque que va a quedar incompleto
     arreglo_salida = zeros(1, size_salida); 
     indice_original = 1;
     indice_nuevo = 1;
-    
     while indice_original <= size(arreglo, 2)
         bloque_actual = parsear_arreglo(arreglo, indice_original, indice_original + k - 1);
-        arreglo_salida(1, indice_nuevo:indice_nuevo + n - 1) = codificacion_Hamming_bloque(bloque_actual, k, n, G); % indice_nuevo:indice_nuevo + n - 1 // Trabajando seccion de vector
-
-        %este límite de indice_nuevo + n se podría pasar con un criterio distinto para el último bloque
-
+        arreglo_salida(1, indice_nuevo:indice_nuevo + n - 1) = codificacion_Hamming_bloque(bloque_actual, k, n, G);
         indice_original = indice_original + k;
         indice_nuevo = indice_nuevo + n;
-    end
-
-    indice = 1;
-
-    while indice <= size_salida
-        arreglo_salida(1, indice) = mod(arreglo_salida(1, indice), 2);
-        indice = indice + 1;
     end
 end
 
@@ -69,7 +57,7 @@ function bloque_codificado = codificacion_Hamming_bloque(bloque, k, n, G)
    bloque_codificado = mod(G' * bloque', 2)';
 end
 
-function salida_codificacion = archivo_bits_a_arreglo(nombre_archivo_entrada)
+function salida_codificacion = archivo_a_arreglo(nombre_archivo_entrada)
     archivo_entrada = fopen(nombre_archivo_entrada, 'r');
     if archivo_entrada == -1
       error('No se pudo abrir el archivo');

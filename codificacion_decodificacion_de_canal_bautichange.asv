@@ -3,9 +3,10 @@
 entrada_codificacion = "salida_codificacion.txt";
 salida_decodificacion = "salida_decodificacion_canal.txt";
 
+salida_codificacion_canal = "salida_codificacion_canal.txt";
 
 k = 11;
-n = 15;
+n = 15; 
 
 % nuevo = bloque * G
 
@@ -26,34 +27,28 @@ n = 15;
 % DESPUÉS PASARNOS EL ARREGLO ENTRE BLOQUES DIRECTAMENTE
 arreglo_ejemplo = archivo_bits_a_arreglo(entrada_codificacion);
 arreglo_prueba = [1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0,0, 0, 0, 1]
-arreglo_salida_codif_canal = codificacion_Hamming_completa(arreglo_prueba, k, n, G)
+arreglo_salida_codif_canal = codificacion_Hamming_completa(arreglo_ejemplo, k, n, G)
+arreglo_a_archivo(arreglo_salida_codif_canal, salida_codificacion_canal)
 arreglo_salida_decodif_canal = decodificacion_Hamming_completa(arreglo_salida_codif_canal, k, n, G)
-%arreglo_a_archivo(arreglo_salida_decodif_canal, salida_decodificacion)
+arreglo_a_archivo(arreglo_salida_decodif_canal, salida_decodificacion)
 
 
 function arreglo_salida = codificacion_Hamming_completa(arreglo, k, n, G)
-    size_arr_entrada = size(arreglo, 2)
-    suma_extra = 0 
+    suma_extra = 0;
     if mod(size(arreglo, 2), k)~= 0 
-        suma_extra = n
+        suma_extra = n;
     end
-    size_salida = int32(suma_extra + n * ceil(size(arreglo, 2) / k)) %acá chequear en función de qué hacemos con el último bloque que va a quedar incompleto
+    size_salida = int32(suma_extra + n * ceil(size(arreglo, 2) / k)); %acá chequear en función de qué hacemos con el último bloque que va a quedar incompleto
     arreglo_salida = zeros(1, size_salida); 
     indice_original = 1;
     indice_nuevo = 1;
-    
-    while indice_original < size(arreglo, 2)
+    while indice_original <= size(arreglo, 2)
         bloque_actual = parsear_arreglo(arreglo, indice_original, indice_original + k - 1);
-        arreglo_salida(1, indice_nuevo:indice_nuevo + n - 1) = codificacion_Hamming_bloque(bloque_actual, k, n, G); % indice_nuevo:indice_nuevo + n - 1 // Trabajando seccion de vector
-
-        %este límite de indice_nuevo + n se podría pasar con un criterio distinto para el último bloque
-
+        arreglo_salida(1, indice_nuevo:indice_nuevo + n - 1) = codificacion_Hamming_bloque(bloque_actual, k, n, G);
         indice_original = indice_original + k;
         indice_nuevo = indice_nuevo + n;
     end
-
     indice = 1;
-
     while indice <= size_salida
         arreglo_salida(1, indice) = mod(arreglo_salida(1, indice), 2);
         indice = indice + 1;
@@ -64,23 +59,17 @@ end
 %codificacion_Hamming_bloque recibe un arreglo bloque de k elementos (es decir, k
 %bits) y por medio de la matriz G devuelve un bloque_codificado de n bits
 function bloque_codificado = codificacion_Hamming_bloque(bloque, k, n, G)
-    bloque_codificado = zeros(1, n-1);
-    if size(bloque, 2) ~= k-1
-        bloque_codificado(1:size(bloque, 2)) = bloque;
-        %error ('Ayuda?'); %esto es momentáneo hasta que vea qué dejar
-    end
-    bloque_codificado = bloque * G;
+   bloque_codificado = mod(G' * bloque', 2)';
 end
 
-
 function salida_codificacion = archivo_bits_a_arreglo(nombre_archivo_entrada)
-    salida_codificacion = [];
     archivo_entrada = fopen(nombre_archivo_entrada, 'r');
     if archivo_entrada == -1
-      error('No se puedo abrir el archivo');
+      error('No se pudo abrir el archivo');
     end
-    salida_codificacion = fread(archivo_entrada, Inf, 'bit1')';
+    caracteres = fread(archivo_entrada, Inf, '*char')';
     fclose(archivo_entrada);
+    salida_codificacion = double(caracteres) - double('0');
 end
 
 function arreglo_a_archivo(arreglo, nombre_archivo_salida)
@@ -92,15 +81,26 @@ function arreglo_a_archivo(arreglo, nombre_archivo_salida)
     fclose(archivo_salida);
 end
 
-function arreglo_recortado = parsear_arreglo(arreglo, inicio, fin)
-    if size(arreglo, 2) <= fin
-        arreglo_recortado = zeros(1, (fin - inicio) + 1); %% Se prearma un vector de 15 elementos para que pueda multiplicarse con la matriz generadora // Largo 11 para eso
+%function arreglo_recortado = parsear_arreglo(arreglo, inicio, fin)
+   % if size(arreglo, 2) <= fin
+    %    arreglo_recortado = zeros(1, (fin - inicio) + 1); %% Se prearma un vector de 15 elementos para que pueda multiplicarse con la matriz generadora // Largo 11 para eso
+%
+ %       arreglo_recortado(1, 1:(size(arreglo, 2) - inicio + 1)) = arreglo(inicio:size(arreglo, 2));
+  %      return
+   % end
+    %arreglo_recortado = arreglo(inicio:fin);
+   % return
+%end
 
-        arreglo_recortado(1, 1:(size(arreglo, 2) - inicio + 1)) = arreglo(inicio:size(arreglo, 2));
+function arreglo_recortado = parsear_arreglo(arreglo, inicio, fin)
+    % CORRECCIÓN: Cambiado a < para detectar correctamente bloques incompletos
+    if size(arreglo, 2) < fin
+        arreglo_recortado = zeros(1, (fin - inicio) + 1); 
+        % Rellena con ceros (Padding) lo que falte
+        arreglo_recortado(1, 1:(size(arreglo, 2) - inicio + 1)) = arreglo(inicio:end);
         return
     end
     arreglo_recortado = arreglo(inicio:fin);
-    return
 end
 
 %% Receptor
@@ -127,10 +127,9 @@ end
 % 1)
 
 function H = matrizParidad(G, n, k)
-    [G_rref, ~] = rref(G);
-    G_sys = mod(round(G_rref), 2); % Convertir a enteros y aplicar módulo 2 / XOR
-    P = G_sys(:, 1:n-k);
+    G_sys = mod(round(G), 2); 
     m = n - k;
+    P = G_sys(:, 1:m);
     I_m = eye(m);
     H = [I_m, P'];
 end
