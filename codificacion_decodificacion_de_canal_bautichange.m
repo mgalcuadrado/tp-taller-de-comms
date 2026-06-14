@@ -109,7 +109,7 @@ function arreglo_salida = decodificacion_Hamming_completa(arreglo, k, n, G)
     S = tablaSindromes(H);
     while indice_nuevo < size_salida 
         bloque_actual = parsear_arreglo(arreglo, indice_original, indice_original + n - 1);
-        arreglo_salida(1, indice_nuevo:indice_nuevo + k - 1) = decodificarCanal(H, S, bloque_actual, n, k); 
+        arreglo_salida(1, indice_nuevo:indice_nuevo + k - 1) = decodificar_Hamming_bloque(H, S, bloque_actual, n, k); 
 
         %este límite de indice_nuevo + n se podría pasar con un criterio distinto para el último bloque
 
@@ -183,7 +183,7 @@ end
 
 %4) Idem con 3), 
 
-function bitsDecodificados = decodificarCanal(H,S,bloque,n,k)
+function bitsDecodificados = decodificar_Hamming_bloque(H,S,bloque,n,k)
     %cantidadPalabras = floor(length(bits)/n);
     %bitsDecodificados = size(cantidadPalabras);
    % for i = 1:cantidadPalabras
