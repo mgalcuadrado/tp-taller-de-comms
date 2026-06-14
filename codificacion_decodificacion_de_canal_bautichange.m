@@ -3,6 +3,7 @@
 entrada_codificacion = "salida_codificacion.txt";
 salida_decodificacion = "salida_decodificacion_canal.txt";
 
+salida_codificacion_canal = "salida_codificacion_canal.txt";
 
 k = 11;
 n = 15; 
@@ -27,6 +28,7 @@ n = 15;
 arreglo_ejemplo = archivo_bits_a_arreglo(entrada_codificacion);
 arreglo_prueba = [1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0,0, 0, 0, 1]
 arreglo_salida_codif_canal = codificacion_Hamming_completa(arreglo_ejemplo, k, n, G)
+arreglo_a_archivo(arreglo_salida_codif_canal, salida_codificacion_canal)
 arreglo_salida_decodif_canal = decodificacion_Hamming_completa(arreglo_salida_codif_canal, k, n, G)
 arreglo_a_archivo(arreglo_salida_decodif_canal, salida_decodificacion)
 
@@ -64,12 +66,6 @@ end
 %codificacion_Hamming_bloque recibe un arreglo bloque de k elementos (es decir, k
 %bits) y por medio de la matriz G devuelve un bloque_codificado de n bits
 function bloque_codificado = codificacion_Hamming_bloque(bloque, k, n, G)
-%    bloque_codificado = zeros(1, n-1);
- %   if size(bloque, 2) ~= k-1
-  %      bloque_codificado(1:size(bloque, 2)) = bloque;
-   %     %error ('Ayuda?'); %esto es momentáneo hasta que vea qué dejar
-   % end
-   % bloque_codificado = bloque * G;
    bloque_codificado = mod(G' * bloque', 2)';
 end
 
