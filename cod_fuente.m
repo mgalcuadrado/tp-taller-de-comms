@@ -60,8 +60,12 @@ function [caracteres, probabilidades, cantidad_caracteres_distintos] = leer_arch
             cantidad_apariciones(cantidad_caracteres_distintos) = 1;
         end
         cantidad_caracteres_totales = cantidad_caracteres_totales + 1;
-    caracter = fread(archivo, 1, '*char');
+        caracter = fread(archivo, 1, '*char');
     end
+    cantidad_caracteres_distintos =  cantidad_caracteres_distintos + 1;
+    caracteres(cantidad_caracteres_distintos) = char(0);
+    cantidad_caracteres_totales = cantidad_caracteres_totales + 1;
+    cantidad_apariciones(cantidad_caracteres_distintos) = 1;
     probabilidades = cantidad_apariciones / cantidad_caracteres_totales;
     fclose(archivo);
 end
@@ -103,7 +107,8 @@ function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_
         fwrite(archivo_salida, palabra, 'char');
         caracter = fread(archivo_entrada, 1, '*char');
     end
-    fwrite(archivo_salida, char(0), 'char');
+    salida_codificacion = [salida_codificacion, diccionario{cant_distintos, 2}];
+    fwrite(archivo_salida, char(0), 'char')
     disp('Cerrando archivos...')
     fclose(archivo_salida);
     fclose(archivo_entrada);

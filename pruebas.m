@@ -1,3 +1,4 @@
-%pruebita de concatenación de arreglo en matlab porque tengo miedo de hacer
-%esto directamente en la codificación de fuente 
 
+
+prueba_programa_completo("hola.txt", "chau.txt");
+prueba_programa_completo("entrada.txt", "salida_cod_decod.txt");
