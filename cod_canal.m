@@ -2,7 +2,7 @@
 %codificador_canal devuelve un arreglo columna de ceros y unos que genera
 %tomando mensajes de k bits del arreglo original arreglo y pasándolos por
 %la matriz generadora G para codificarlos en palabras de n bits. 
-function arreglo_salida = codificador_canal(arreglo, k, n, G)
+function arreglo_salida = cod_canal(arreglo, k, n, G)
     suma_extra = 0;
     if mod(size(arreglo, 2), k)~= 0 
         suma_extra = n;
