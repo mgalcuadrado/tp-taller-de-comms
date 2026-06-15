@@ -1,5 +1,5 @@
 %% Receptor
-function [arreglo_salida, dmin, e, t] = decodificador_canal(arreglo, k, n, G)
+function [arreglo_salida, dmin, e, t] = decod_canal(arreglo, k, n, G)
     size_salida = int32(k * ceil(size(arreglo, 2) / n));
     arreglo_salida = zeros(1, size_salida);
     indice_original = 1;
