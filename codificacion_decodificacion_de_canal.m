@@ -8,8 +8,6 @@ salida_codificacion_canal = "salida_codificacion_canal.txt";
 k = 11;
 n = 15; 
 
-% nuevo = bloque * G
-
  G = [1 1 0 1 1 0 0 0 0 0 0 0 0 0 0;
       1 0 1 1 0 1 0 0 0 0 0 0 0 0 0;
       1 0 0 1 0 0 1 0 0 0 0 0 0 0 0;
