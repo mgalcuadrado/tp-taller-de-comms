@@ -1,4 +1,4 @@
-function [nombre_archivo_out_decodificacion] = decodificacion_fuente(nombre_archivo_in_decodificacion, dict, cantidad_caracteres_distintos)
+function [nombre_archivo_out_decodificacion] = decod_fuente(nombre_archivo_in_decodificacion, dict, cantidad_caracteres_distintos)
     %% DECODIFICACIÓN DE FUENTE
     
     nombre_archivo_out_decodificacion = "salida_decodificacion.txt";
