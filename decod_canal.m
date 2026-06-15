@@ -114,4 +114,14 @@ function [dmin,e,t] = calcularParametrosCodigo(G)
     t = floor((dmin-1)/2);
 end
 
+function arreglo_recortado = parsear_arreglo(arreglo, inicio, fin)
+    if size(arreglo, 2) < fin
+        arreglo_recortado = zeros(1, (fin - inicio) + 1); 
+        % Rellena con ceros (ZeroPadding) lo que queda incompleto
+        arreglo_recortado(1, 1:(size(arreglo, 2) - inicio + 1)) = arreglo(inicio:end);
+        return
+    end
+    arreglo_recortado = arreglo(inicio:fin);
+end
+
 
