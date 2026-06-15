@@ -1,24 +1,13 @@
-function [nombre_archivo_out_decodificacion] = decod_fuente(nombre_archivo_in_decodificacion, dict, cantidad_caracteres_distintos)
-    %% DECODIFICACIÓN DE FUENTE
-    
-    nombre_archivo_out_decodificacion = "salida_decodificacion.txt";
 
-    decodificar_archivo(nombre_archivo_in_decodificacion, nombre_archivo_out_decodificacion, dict, cantidad_caracteres_distintos)
-
-    verificar_archivos()
-end
-
-%% FUNCIONES DE DECODIFICACIÓN DE FUENTE
-function decodificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccionario, cant_distintos)
-     disp('Decodificando el archivo usando el diccionario de Huffman')
-    archivo_entrada = abrir_archivo_lectura(nombre_archivo_entrada);
+function nombre_archivo_salida = decod_fuente(arreglo_entrada, nombre_archivo_salida, diccionario, cant_distintos)
+    disp('Decodificando el archivo usando el diccionario de Huffman')
     archivo_salida = fopen(nombre_archivo_salida, 'w');
-    caracter = fread(archivo_entrada, 1, '*char');
-    % Variable para ir guardando "cadena" para poder compararla con
+    indice = 1;
+    % simbolo_codificado es una variable para ir guardando la "cadena" de símbolos sin encontrar para poder compararla con
     % diccionario de Huffman
-
     simbolo_codificado = '';
-    while caracter ~= char(0)
+    while indice <= size(arreglo_entrada, 2)
+       caracter = int2str(arreglo_entrada(indice));
        simbolo_codificado = [simbolo_codificado, caracter];
        posicion_en_dic = 0;
         for i= 1:cant_distintos
@@ -27,7 +16,6 @@ function decodificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, dicc
                 posicion_en_dic = i;
             end
             if posicion_en_dic ~= 0
-
                 %Se encontró match en el diccionario de Huffman para el
                 %símbolo actual
                 palabra = sprintf('%c', diccionario{posicion_en_dic, 1});
@@ -36,14 +24,14 @@ function decodificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, dicc
                 posicion_en_dic = 0;
             end
         end
-        caracter = fread(archivo_entrada, 1, '*char');
+        indice = indice + 1;
     end
 
     disp('Cerrando archivos...')
-    fclose(archivo_salida);
-    fclose(archivo_entrada);    
+    fclose(archivo_salida); 
 
 end
+
 
 
 function verificar_archivos()
