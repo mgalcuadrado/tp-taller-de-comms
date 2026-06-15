@@ -5,10 +5,13 @@
 mapeoTipo='gray';
 modulacionTipo ='PSK';
 
-%transmito 4 de cada [0,0], [0,1],, [1,0], [1,1] 
-entrada=[0,0,1,1,1,0,0,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,0,1,0,0,1,1,1,0,0,1];
-entradaM=4;
-
+% para que sirva apra todos los casos de MPSK tiene que ser multiplo de 12,
+% le paso 24 con 3 de cada 00, 01, 11, 10
+%entrada=[0,0,0,1,1,0,1,1,0,0,1,0,0,0,0,1,1,0,1,1,0,1,1,1];
+%entrada mas larga para la prueba
+entrada=[0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,1,1];
+entradaM=2;
+k = log2(entradaM);
 [simbolosModulados,simbolosOriginales, constelacion] = modularSimbolos(entrada, entradaM,mapeoTipo,modulacionTipo);
 
 [energiaSimbolo,energiaBit]=calcularEnergias(simbolosModulados,entradaM);
@@ -59,17 +62,21 @@ muestra_atenuacion = generacion_atenuacion(min_atenuacion, max_atenuacion);
 simbolosCanal = aplicar_efectos_canal(simbolosModulados, muestra_ruido_termico, muestra_atenuacion, true, false);
 
 %% Grafico de las regiones de decision PSK, muestras teoricas y ruidosas
+colorYellowGreen = [154, 205, 50] / 255;
+
+
 if strcmp(modulacionTipo, 'FSK')
     msgbox('FSK es M-dimensional. Las regiones de decisión no se pueden graficar en un plano 2D.', 'Aviso FSK');
 else
     figure('Color', 'w'); hold on; grid on; axis equal;
     
-    %lim = max(max(abs(constelacion))) + 1.5; %nose poeque no anda
-    lim = 2;
+    %lim = max(max(abs(constelacion))) + 1.5; 
+    lim = 2; %asi todas las imagenes tienen el mismo tamaño
     
-    %Grafico los simbolos que recibí
-    plot(simbolosCanal(:,1), simbolosCanal(:,2), '.', 'Color', [0.4, 0.7, 1.0], 'MarkerSize', 15);
-
+    %Grafico los simbolos que recibí, los hice un poco mas lindos
+    %plot(simbolosCanal(:,1), simbolosCanal(:,2), '.', 'Color', colorYellowGreen, 'MarkerSize', 15);
+    scatter(simbolosCanal(:,1), simbolosCanal(:,2),50,colorYellowGreen, 'filled','MarkerFaceAlpha',0.4);
+    
     % Regiones de decision
     ang_sep = 2*pi/entradaM;
     for m = 0:entradaM-1
@@ -78,17 +85,24 @@ else
     end
         
     % Grafico los puntos ideales de la constelación
-    plot(constelacion(:,1), constelacion(:,2), 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'b');
+    %plot(constelacion(:,1), constelacion(:,2), 'o', 'MarkerSize', 10, 'MarkerFaceColor', colorYellowGreen,'MarkerEdgeColor', colorYellowGreen);
+    scatter(constelacion(:,1), constelacion(:,2),100,colorYellowGreen, 'filled','MarkerFaceAlpha',1,'MarkerEdgeColor', 'b');
     
     % Dibujo etiquetas de texto binarias al lado de los puntos ideales
     for m = 0:entradaM-1
-        b_texto = dec2bin(m, log2(entradaM));
+        if strcmpi(mapeoTipo,'gray')
+            etiqueta = bitxor(m,bitshift(m,-1));
+        else
+            etiqueta = m;
+        end
+
+        b_texto = dec2bin(etiqueta,k);
         text(constelacion(m+1, 1)+0.15, constelacion(m+1, 2)+0.15, b_texto, 'FontSize', 10, 'FontWeight', 'bold');
     end
     
 
     xlim([-lim, lim]); ylim([-lim, lim]);
-    title(['Espacio de Señales y Regiones de Decisión: ' num2str(entradaM) '-' modulacionTipo]);
+    %title(['Espacio de Señales y Regiones de Decisión: ' num2str(entradaM) '-' modulacionTipo]);
     xlabel('\phi_1'); ylabel('\phi_2');
 end
 
@@ -124,9 +138,10 @@ function [simbolosModulados, bitsAlineados, constelacion] = modularSimbolos(bits
     switch upper(modulacionTipo)
 
         case 'PSK'
-            for m = 1:M
-                constelacion(m, 1) = cos(2 * pi * m / M); % Componente en fase
-                constelacion(m, 2) = sin(2 * pi * m / M); % Componente en cuadratura
+            %acá cambie el indice para corregir el desfasaje
+            for m=0:M-1
+                constelacion(m+1,1)=cos(2*pi*m/M);
+                constelacion(m+1,2)=sin(2*pi*m/M);
             end
     
 
@@ -159,10 +174,10 @@ function [bitsRecibidos, simbolosDetectados] = demodularSimbolos(simbolos, M, ma
 
     % Hago la constelación de referencia de nuevo
     constelacion = zeros(M, 2);
-    for m = 1:M
-        constelacion(m, 1) = cos(2 * pi * m / M);
-        constelacion(m, 2) = sin(2 * pi * m / M);
-  
+    %aca tambien cambie la referencia
+    for m=0:M-1
+        constelacion(m+1,1)=cos(2*pi*m/M);
+        constelacion(m+1,2)=sin(2*pi*m/M);  
     end
 
     % Inicializo el vector
