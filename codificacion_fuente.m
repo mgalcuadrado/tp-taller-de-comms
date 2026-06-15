@@ -1,4 +1,4 @@
-function [arreglo_codificado, longitud_minima, longitud_promedio, eficiencia] = codificacion_fuente(nombre_archivo_in_codificacion)
+function [arreglo_codificado, dict, cantidad_caracteres_distintos, longitud_minima, longitud_promedio, eficiencia] = codificacion_fuente(nombre_archivo_in_codificacion)
     % CODIFICACIÓN DE FUENTE
 
     nombre_archivo_out_codificacion = "salida_codificacion.txt";
