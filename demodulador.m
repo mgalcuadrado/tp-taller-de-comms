@@ -10,43 +10,52 @@ function [bitsDetectados, simbolosDetectados]=demodulador(entradaOriginal,simbol
     
     disp('El error de bit se estima en:');
     errorBit(entradaOriginal,bitsDetectados)
-
-   Grafico de las regiones de decision PSK, muestras teoricas y ruidosas
+    
+    %% Grafico de las regiones de decision PSK, muestras teoricas y ruidosas
+    colorYellowGreen = [154, 205, 50] / 255;
+    
+    k=log2(entradaM);
     if strcmp(modulacionTipo, 'FSK')
-       msgbox('FSK es M-dimensional. Las regiones de decisión no se pueden graficar en un plano 2D.', 'Aviso FSK');
+        msgbox('FSK es M-dimensional. Las regiones de decisión no se pueden graficar en un plano 2D.', 'Aviso FSK');
     else
-      figure('Color', 'w'); hold on; grid on; axis equal;
-
-        lim = max(max(abs(constelacion))) + 1.5; %nose poeque no anda
-       lim = 2;
-
-        Grafico los simbolos que recibí
-       plot(transmisionRuidosa(:,1), transmisionRuidosa(:,2), '.', 'Color', [0.4, 0.7, 1.0], 'MarkerSize', 15);
-
-        Regiones de decision
-       ang_sep = 2*pi/entradaM;
-       for m = 0:entradaM-1
-           theta = m*ang_sep - ang_sep/2;
-           line([0 lim*cos(theta)], [0 lim*sin(theta)], 'Color', [0.5 0.5 0.5], 'LineStyle', '--');
-       end
-
-        Grafico los puntos ideales de la constelación
-       plot(constelacion(:,1), constelacion(:,2), 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'b');
-
-        Dibujo etiquetas de texto binarias al lado de los puntos ideales
-       for m = 0:entradaM-1
-           b_texto = dec2bin(m, log2(entradaM));
-           text(constelacion(m+1, 1)+0.15, constelacion(m+1, 2)+0.15, b_texto, 'FontSize', 10, 'FontWeight', 'bold');
+        figure('Color', 'w'); hold on; grid on; axis equal;
+        
+        %lim = max(max(abs(constelacion))) + 1.5; 
+        lim = 2; %asi todas las imagenes tienen el mismo tamaño
+        
+        %Grafico los simbolos que recibí, los hice un poco mas lindos
+        %plot(simbolosCanal(:,1), simbolosCanal(:,2), '.', 'Color', colorYellowGreen, 'MarkerSize', 15);
+        scatter(transmisionRuidosa(:,1), transmisionRuidosa(:,2),50,colorYellowGreen, 'filled','MarkerFaceAlpha',0.4);
+        
+        % Regiones de decision
+        ang_sep = 2*pi/entradaM;
+        for m = 0:entradaM-1
+            theta = m*ang_sep - ang_sep/2;
+            line([0 lim*cos(theta)], [0 lim*sin(theta)], 'Color', [0.5 0.5 0.5], 'LineStyle', '--');
         end
-
-
+            
+        % Grafico los puntos ideales de la constelación
+        %plot(constelacion(:,1), constelacion(:,2), 'o', 'MarkerSize', 10, 'MarkerFaceColor', colorYellowGreen,'MarkerEdgeColor', colorYellowGreen);
+        scatter(constelacion(:,1), constelacion(:,2),100,colorYellowGreen, 'filled','MarkerFaceAlpha',1,'MarkerEdgeColor', 'b');
+        
+        % Dibujo etiquetas de texto binarias al lado de los puntos ideales
+        for m = 0:entradaM-1
+            if strcmpi(mapeoTipo,'gray')
+                etiqueta = bitxor(m,bitshift(m,-1));
+            else
+                etiqueta = m;
+            end
+    
+            b_texto = dec2bin(etiqueta,k);
+            text(constelacion(m+1, 1)+0.15, constelacion(m+1, 2)+0.15, b_texto, 'FontSize', 10, 'FontWeight', 'bold');
+        end
+        
+    
         xlim([-lim, lim]); ylim([-lim, lim]);
-        title(['Espacio de Señales y Regiones de Decisión: ' num2str(entradaM) '-' modulacionTipo]);
+        %title(['Espacio de Señales y Regiones de Decisión: ' num2str(entradaM) '-' modulacionTipo]);
         xlabel('\phi_1'); ylabel('\phi_2');
     end
 end
-
-
 
 function [bitsRecibidos, simbolosDetectados] = demodularSimbolos(simbolos, M, mapeoTipo, modulacionTipo)
 
@@ -56,9 +65,9 @@ function [bitsRecibidos, simbolosDetectados] = demodularSimbolos(simbolos, M, ma
 
     % Hago la constelación de referencia de nuevo
     constelacion = zeros(M, 2);
-    for m = 1:M
-        constelacion(m, 1) = cos(2 * pi * m / M);
-        constelacion(m, 2) = sin(2 * pi * m / M);
+    for m = 0:M-1
+        constelacion(m+1, 1) = cos(2 * pi * m / M);
+        constelacion(m+1, 2) = sin(2 * pi * m / M);
   
     end
 
