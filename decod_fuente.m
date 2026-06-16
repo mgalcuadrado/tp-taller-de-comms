@@ -19,8 +19,7 @@ function nombre_archivo_salida = decod_fuente(arreglo_entrada, nombre_archivo_sa
                 %Se encontró match en el diccionario de Huffman para el
                 %símbolo actual
                 palabra = sprintf('%c', diccionario{posicion_en_dic, 1});
-                if diccionario{posicion_en_dic, 1} == char(0)
-                    fprintf("Encontré el EOF");
+                if diccionario{posicion_en_dic, 1} == char(0) %se llegó al final del archivo original
                     break;
                 end 
                 fwrite(archivo_salida, palabra, 'char');
