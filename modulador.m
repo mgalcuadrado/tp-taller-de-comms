@@ -42,9 +42,9 @@ function [simbolosModulados, bitsAlineados, constelacion] = modularSimbolos(bits
     switch upper(modulacionTipo)
 
         case 'PSK'
-            for m = 1:M
-                constelacion(m, 1) = cos(2 * pi * m / M); % Componente en fase
-                constelacion(m, 2) = sin(2 * pi * m / M); % Componente en cuadratura
+            for m = 0:M-1
+                constelacion(m+1, 1) = cos(2 * pi * m / M); % Componente en fase
+                constelacion(m+1, 2) = sin(2 * pi * m / M); % Componente en cuadratura
             end
     
 
