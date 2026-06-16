@@ -101,11 +101,12 @@ function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_
                 posicion_en_dic = i;
             end
         end
-        %diccionario(posicion_en_dic)
-        salida_codificacion = [salida_codificacion, diccionario{posicion_en_dic, 2}];
-        palabra = sprintf('%d', diccionario{posicion_en_dic, 2});
-        fwrite(archivo_salida, palabra, 'char');
-        caracter = fread(archivo_entrada, 1, '*char');
+        if posicion_en_dic ~= 0
+            salida_codificacion = [salida_codificacion, diccionario{posicion_en_dic, 2}];
+            palabra = sprintf('%d', diccionario{posicion_en_dic, 2});
+            fwrite(archivo_salida, palabra, 'char');
+            caracter = fread(archivo_entrada, 1, '*char');
+        end
     end
     salida_codificacion = [salida_codificacion, diccionario{cant_distintos, 2}];
     fwrite(archivo_salida, char(0), 'char')

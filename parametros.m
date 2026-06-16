@@ -20,7 +20,7 @@ function [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenua
     min_atenuacion = 0.5;
     max_atenuacion =0.9;
     % snr para el ruido térmico
-    SNR = 1; %db
+    SNR = 10; %db
     aplicarRuido=true;
     aplicarAtenuacion=false;
 end
