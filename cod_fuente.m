@@ -6,7 +6,7 @@ function [arreglo_codificado, dict, cantidad_caracteres_distintos, longitud_mini
 
     %Se obtienen los distintos caracteres con su probabilidad de ocurrencia y
     %La cantidad de caracteres distintos de la fuente
-    [caracteres, probabilidades, cantidad_caracteres_distintos] = leer_archivo(archivo);
+    [caracteres, probabilidades, cantidad_caracteres_distintos, cantidad_caracteres_totales] = leer_archivo(archivo);
 
     %Verificación de la suma de las probabilidades
     verificacion_suma(probabilidades);
@@ -25,7 +25,7 @@ function [arreglo_codificado, dict, cantidad_caracteres_distintos, longitud_mini
     eficiencia = entropia / avglen;
 
     %Se codifica el archivo en función del diccionario armado
-    arreglo_codificado = codificar_archivo(nombre_archivo_in_codificacion, nombre_archivo_out_codificacion, dict, cantidad_caracteres_distintos);
+    arreglo_codificado = codificar_archivo(nombre_archivo_in_codificacion, nombre_archivo_out_codificacion, dict, cantidad_caracteres_distintos, cantidad_caracteres_totales, avglen);
 end
 
 %% FUNCIONES DE CODIFICACIÓN DE FUENTE 
@@ -38,7 +38,7 @@ function archivo = abrir_archivo_lectura(nombre_archivo)
     end
 end
 
-function [caracteres, probabilidades, cantidad_caracteres_distintos] = leer_archivo(archivo)
+function [caracteres, probabilidades, cantidad_caracteres_distintos, cantidad_caracteres_totales] = leer_archivo(archivo)
     disp('Leyendo el archivo...')
     cantidad_caracteres_distintos = 0;
     cantidad_caracteres_totales = 0;
@@ -87,11 +87,12 @@ function entropia = calcular_entropia_fuente(probas)
     end
 end
 
-function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccionario, cant_distintos)
-    salida_codificacion = [];
+function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccionario, cant_distintos, cant_totales, avglen)
+    salida_codificacion= zeros(1,length(cant_totales) * ceil(avglen));
     archivo_entrada = abrir_archivo_lectura(nombre_archivo_entrada);
-    archivo_salida = fopen(nombre_archivo_salida, 'w');
+    archivo_salida = fopen(nombre_archivo_salida, 'w'); 
     caracter = fread(archivo_entrada, 1, '*char');
+    indice = 1; 
     while caracter ~= char(0)
         posicion_en_dic = 0;
         for i= 1:cant_distintos
@@ -102,14 +103,27 @@ function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_
             end
         end
         if posicion_en_dic ~= 0
-            salida_codificacion = [salida_codificacion, diccionario{posicion_en_dic, 2}];
+            if indice + length(diccionario{posicion_en_dic, 2}) > length(salida_codificacion)
+                fprintf("Redimensión del arreglo de codificación de fuente\n");
+                salida_codificacion = [salida_codificacion, zeros(1, 3* length(salida_codificacion))];
+            end
+            salida_codificacion(indice: (indice - 1 + length(diccionario{posicion_en_dic, 2}))) = diccionario{posicion_en_dic, 2};
             palabra = sprintf('%d', diccionario{posicion_en_dic, 2});
             fwrite(archivo_salida, palabra, 'char');
             caracter = fread(archivo_entrada, 1, '*char');
+            indice = indice + length(diccionario{posicion_en_dic, 2});
         end
     end
-    salida_codificacion = [salida_codificacion, diccionario{cant_distintos, 2}];
-    fwrite(archivo_salida, char(0), 'char')
+    if indice + length(diccionario{posicion_en_dic, 2}) > length(salida_codificacion)
+        fprintf("Redimensión del arreglo de codificación de fuente para el end of file\n");
+        salida_codificacion = [salida_codificacion, zeros(1, length(diccionario{cant_distintos, 2}))];
+    end
+    salida_codificacion(indice: (indice - 1 + length(diccionario{cant_distintos, 2}))) = diccionario{cant_distintos, 2};
+    indice = indice + length(diccionario{cant_distintos, 2});
+    if indice > length(salida_codificacion)
+        salida_codificacion = salida_codificacion(1:indice + 1);
+    end
+    fwrite(archivo_salida, char(0), 'char');
     disp('Cerrando archivos...')
     fclose(archivo_salida);
     fclose(archivo_entrada);

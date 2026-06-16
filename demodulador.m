@@ -10,40 +10,40 @@ function [bitsDetectados, simbolosDetectados]=demodulador(entradaOriginal,simbol
     
     disp('El error de bit se estima en:');
     errorBit(entradaOriginal,bitsDetectados)
-    
-    %Grafico de las regiones de decision PSK, muestras teoricas y ruidosas
-    if strcmp(modulacionTipo, 'FSK')
-        msgbox('FSK es M-dimensional. Las regiones de decisión no se pueden graficar en un plano 2D.', 'Aviso FSK');
-    else
-        figure('Color', 'w'); hold on; grid on; axis equal;
-        
-        %lim = max(max(abs(constelacion))) + 1.5; %nose poeque no anda
-        lim = 2;
-        
-        %Grafico los simbolos que recibí
-        plot(transmisionRuidosa(:,1), transmisionRuidosa(:,2), '.', 'Color', [0.4, 0.7, 1.0], 'MarkerSize', 15);
-    
-        % Regiones de decision
-        ang_sep = 2*pi/entradaM;
-        for m = 0:entradaM-1
-            theta = m*ang_sep - ang_sep/2;
-            line([0 lim*cos(theta)], [0 lim*sin(theta)], 'Color', [0.5 0.5 0.5], 'LineStyle', '--');
-        end
-            
-        % Grafico los puntos ideales de la constelación
-        plot(constelacion(:,1), constelacion(:,2), 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'b');
-        
-        % Dibujo etiquetas de texto binarias al lado de los puntos ideales
-        for m = 0:entradaM-1
-            b_texto = dec2bin(m, log2(entradaM));
-            text(constelacion(m+1, 1)+0.15, constelacion(m+1, 2)+0.15, b_texto, 'FontSize', 10, 'FontWeight', 'bold');
-        end
-        
-    
-        xlim([-lim, lim]); ylim([-lim, lim]);
-        title(['Espacio de Señales y Regiones de Decisión: ' num2str(entradaM) '-' modulacionTipo]);
-        xlabel('\phi_1'); ylabel('\phi_2');
-    end
+   % 
+   % Grafico de las regiones de decision PSK, muestras teoricas y ruidosas
+   %  if strcmp(modulacionTipo, 'FSK')
+   %     msgbox('FSK es M-dimensional. Las regiones de decisión no se pueden graficar en un plano 2D.', 'Aviso FSK');
+   %  else
+   %    figure('Color', 'w'); hold on; grid on; axis equal;
+   % 
+   %      lim = max(max(abs(constelacion))) + 1.5; %nose poeque no anda
+   %     lim = 2;
+   % 
+   %      Grafico los simbolos que recibí
+   %     plot(transmisionRuidosa(:,1), transmisionRuidosa(:,2), '.', 'Color', [0.4, 0.7, 1.0], 'MarkerSize', 15);
+   % 
+   %      Regiones de decision
+   %     ang_sep = 2*pi/entradaM;
+   %     for m = 0:entradaM-1
+   %         theta = m*ang_sep - ang_sep/2;
+   %         line([0 lim*cos(theta)], [0 lim*sin(theta)], 'Color', [0.5 0.5 0.5], 'LineStyle', '--');
+   %     end
+   % 
+   %      Grafico los puntos ideales de la constelación
+   %     plot(constelacion(:,1), constelacion(:,2), 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'b');
+   % 
+   %      Dibujo etiquetas de texto binarias al lado de los puntos ideales
+   %     for m = 0:entradaM-1
+   %         b_texto = dec2bin(m, log2(entradaM));
+   %         text(constelacion(m+1, 1)+0.15, constelacion(m+1, 2)+0.15, b_texto, 'FontSize', 10, 'FontWeight', 'bold');
+   %      end
+   % 
+   % 
+   %      xlim([-lim, lim]); ylim([-lim, lim]);
+   %      title(['Espacio de Señales y Regiones de Decisión: ' num2str(entradaM) '-' modulacionTipo]);
+   %      xlabel('\phi_1'); ylabel('\phi_2');
+   %  end
 end
 
 
