@@ -37,8 +37,8 @@
     nombre_archivo_in = "entrada.txt";
     nombre_archivo_out = "salida_analisis_sist.txt";
     [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
-    entradaM = 1;
-    for i=1:2 %para M2 y M4
+    entradaM = 1; %para arrancar en M8
+    for i=1:2 
         entradaM = entradaM * 2;
         %PSK SIN Y CON CODIFICACIÓN DE CANAL
         prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "PSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
@@ -52,7 +52,7 @@
 
 
 %% PRUEBAS SISTEMA COMPLETO (FUENTE + CANAL + MODULACIÓN + EFECTOS DE CANAL)
-    [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
+    [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, ~] = parametros();
     aplicarRuido = false;
     aplicarAtenuacion = false;
     prueba_programa_completo("hola.txt", "chau.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
