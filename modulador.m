@@ -23,7 +23,8 @@ function [simbolosModulados, bitsAlineados, constelacion] = modularSimbolos(bits
         error('M debe ser una potencia de 2 entre 2 y 16.');
     end
     if mod(length(bits), k) ~= 0
-        error('La longitud del vector de bits debe ser múltiplo de log2(M).');
+        %error('La longitud del vector de bits debe ser múltiplo de log2(M).');
+        bits = [bits, zeros(1, k-mod(length(bits), k))];
     end
 
     % Agrupo bits en palabras y convierto a decimal

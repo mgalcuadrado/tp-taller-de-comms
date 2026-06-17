@@ -12,9 +12,21 @@
 %% PRUEBAS MODULACIÓN / DEMODULACIÓN
    nombre_archivo_entrada = "entrada_pruebas_codificado_fuente.txt";
    nombre_archivo_salida = "salida_prueba_mod1.txt";
-   [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
-   prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
-
+   [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion] = parametros();
+   
+   %primero se realiza una prueba sin ruido ni atenuación
+   aplicarRuido = false;
+   aplicarAtenuacion = false;
+   prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
+     
+    %luego se realiza una prueba con ruido bajo (10dB) y sin atenuación
+    snr_actual = 10; %dB
+    aplicarRuido = true;
+    prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
+  
+    %se realiza una prueba con ruido alto (1dB) y sin atenuación
+    snr_actual = 1;
+    prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
 
 %% PRUEBAS FUENTE + CANAL
     prueba_cod_decod_fuente_canal("entrada.txt", "salida2.txt");
@@ -41,6 +53,12 @@
 
 %% PRUEBAS SISTEMA COMPLETO (FUENTE + CANAL + MODULACIÓN + EFECTOS DE CANAL)
     [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
+    aplicarRuido = false;
+    aplicarAtenuacion = false;
+    prueba_programa_completo("hola.txt", "chau.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    prueba_programa_completo("entrada.txt", "salida_cod_decod.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    prueba_programa_completo("sherlock_holmes.txt", "mycroft_holmes.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    aplicarRuido = true;
     prueba_programa_completo("hola.txt", "chau.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("entrada.txt", "salida_cod_decod.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("sherlock_holmes.txt", "mycroft_holmes.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
@@ -118,6 +136,7 @@ function [SER, BER] = prueba_programa_completo(nombre_archivo_entrada, nombre_ar
         arreglo_salida_decod_canal = bitsDetectados;
     end
     decod_fuente(arreglo_salida_decod_canal, nombre_archivo_out, diccionario, cant_distintos);  
+    comparar_entrada_y_salida(nombre_archivo_entrada, nombre_archivo_out);
     fprintf("FIN DE PRUEBA DEL PROGRAMA COMPLETO CON ARCHIVO DE ENTRADA %s\n", nombre_archivo_entrada)
 end
 
