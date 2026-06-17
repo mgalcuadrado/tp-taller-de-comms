@@ -37,7 +37,7 @@
     nombre_archivo_in = "entrada.txt";
     nombre_archivo_out = "salida_analisis_sist.txt";
     [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
-    entradaM = 1; 
+    entradaM = 1; %para arrancar en M8
     for i=1:2 
         entradaM = entradaM * 2;
         %PSK SIN Y CON CODIFICACIÓN DE CANAL
@@ -47,17 +47,7 @@
         prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "FSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
         prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, false, k, n,G, mapeoTipo, "FSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     end   
-
-%%  Prueba de análisis de sistema para casos puntuales
-    %prueba 2-PSK con y sin cod canal 
-    nombre_archivo_in = "entrada.txt";
-    nombre_archivo_out = "salida_analisis_sist.txt";
-    [k,n,G, mapeoTipo, ~, ~, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
-    modulacionTipo = "PSK";
-    entradaM = 2; 
-    prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
-    prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, false, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
-   
+    
 
 
 
@@ -73,6 +63,17 @@
     prueba_programa_completo("entrada.txt", "salida_cod_decod.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("sherlock_holmes.txt", "mycroft_holmes.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
 
+%%  Prueba de análisis de sistema para casos puntuales
+    %prueba 2-PSK con y sin cod canal 
+    nombre_archivo_in = "texto_grande.txt";
+    nombre_archivo_out = "salida_analisis_sist.txt";
+    [k,n,G, mapeoTipo, ~, ~, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
+    modulacionTipo = "PSK";
+    entradaM = 16; 
+    %prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, codificaciondecanal, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
+    prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, true,                k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, false,               k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+   
 
 %% FUNCIONES PARA PRUEBAS
 
@@ -101,10 +102,10 @@ function prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_
     mensaje_prueba_mod_demod_efectos_canal(mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     entrada = archivo_a_arreglo(nombre_archivo_in);
     [energiaSimbolo, energiaBit, simbolosModulados, simbolosOriginales, constelacion]=modulador(entrada, entradaM, mapeoTipo,modulacionTipo);
-    [simbolosModulados]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM)
+    [simbolosModulados]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM);
     %La entrada original y simbolosOriginales entran para calcular el error de
     %bit/simbolo
-    [bitsDetectados, simbolosDetectados, ~]=demodulador(entrada,simbolosOriginales,simbolosModulados,entradaM,mapeoTipo,modulacionTipo, constelacion)
+    [bitsDetectados, simbolosDetectados, ~]=demodulador(entrada,simbolosOriginales,simbolosModulados,entradaM,mapeoTipo,modulacionTipo, constelacion);
     arreglo_a_archivo(bitsDetectados, nombre_archivo_out);
     comparar_entrada_y_salida(nombre_archivo_in, nombre_archivo_out);
     fprintf("FIN DE PRUEBA DE MODULACIÓN, EFECTOS DE CANAL Y DEMODULACIÓN CON ARCHIVO DE ENTRADA %s\n", nombre_archivo_in);
@@ -150,32 +151,92 @@ function [SER, BER] = prueba_programa_completo(nombre_archivo_entrada, nombre_ar
     fprintf("FIN DE PRUEBA DEL PROGRAMA COMPLETO CON ARCHIVO DE ENTRADA %s\n", nombre_archivo_entrada)
 end
 
-function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, codificaciondecanal, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
-    arreglo_ser = zeros(1,11);
-    arreglo_ber = zeros(1,11);
-    for EbNo=0:10
-        for i=1:5
-            snr_actual = EbNo + 10 * log10(log2(entradaM));
-            [SER, BER] = prueba_programa_completo(nombre_archivo_in, nombre_archivo_out, codificaciondecanal, k, n, G, mapeoTipo, modulacionTipo, entradaM, snr_actual, aplicarRuido, aplicarAtenuacion, min_atenuacion, max_atenuacion);
-            arreglo_ser(EbNo + 1) = arreglo_ser(EbNo + 1) + SER;
-            arreglo_ber(EbNo + 1) = arreglo_ber(EbNo + 1) + BER;
+function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codificaciondecanal, k, n, G,mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR,...
+    aplicarRuido, aplicarAtenuacion)
+
+    EbNo_vec = 0:10;
+
+    arreglo_ser = zeros(size(EbNo_vec));
+    arreglo_ber = zeros(size(EbNo_vec));
+
+    for idx = 1:length(EbNo_vec)
+
+        EbNo = EbNo_vec(idx);
+
+        for i = 1:5
+
+            snr_actual = EbNo + 10*log10(log2(entradaM));
+
+            [SER, BER] = prueba_programa_completo(...
+                nombre_archivo_in,...
+                nombre_archivo_out,...
+                codificaciondecanal,...
+                k, n, G,...
+                mapeoTipo,...
+                modulacionTipo,...
+                entradaM,...
+                min_atenuacion,...
+                max_atenuacion,...
+                snr_actual,...
+                aplicarRuido,...
+                aplicarAtenuacion);
+
+            arreglo_ser(idx) = arreglo_ser(idx) + SER;
+            arreglo_ber(idx) = arreglo_ber(idx) + BER;
+
         end
     end
-    arreglo_ser = arreglo_ser/ 5;
-    arreglo_ber = arreglo_ber / 5;
+
+    arreglo_ser = arreglo_ser/5;
+    arreglo_ber = arreglo_ber/5;
+
     cadena_modulacion = int2str(entradaM) + "-" + modulacionTipo;
-    cadena_cod =  "codificación de canal";
+
     if codificaciondecanal
-        cadena_cod = "con" + cadena_cod;
+        cadena_cod = "con codificacion de canal";
     else
-        cadena_cod = "sin " + cadena_cod;
+        cadena_cod = "sin codificacion de canal";
     end
-    nombre_figura = "SER en función del Eb/No " + cadena_cod + " en " + cadena_modulacion;
-    figure(name= nombre_figura)
-    plot(linspace(0,10, 11), arreglo_ser);
-    nombre_figura = "BER en función del Eb/No " + cadena_cod + " en " + cadena_modulacion;
-    figure(name=nombre_figura)
-    plot(linspace(0,10, 11), arreglo_ber);
+
+    %% Guardar resultados
+
+    tabla_resultados = [EbNo_vec(:), arreglo_ser(:), arreglo_ber(:)];
+
+    nombre_txt = "resultados_M=2" + cadena_modulacion + "_" + ...
+                 strrep(cadena_cod," ","_") + ".txt";
+
+    writematrix(tabla_resultados, nombre_txt, 'Delimiter','tab');
+
+    %% Graficar SER
+
+    nombre_figura = "SER vs Eb/No " + cadena_cod + ...
+                    " en " + cadena_modulacion;
+
+    figure('Name', nombre_figura)
+
+    semilogy(EbNo_vec, arreglo_ser,'o-','LineWidth',1.5)
+
+    grid on
+
+    xlabel('E_b/N_0 (dB)')
+    ylabel('SER')
+    title(nombre_figura)
+
+    %% Graficar BER
+
+    nombre_figura = "BER vs Eb/No " + cadena_cod + ...
+                    " en " + cadena_modulacion;
+
+    figure('Name', nombre_figura)
+
+    semilogy(EbNo_vec, arreglo_ber,'o-','LineWidth',1.5)
+
+    grid on
+
+    xlabel('E_b/N_0 (dB)')
+    ylabel('BER')
+    title(nombre_figura)
+
 end
 
 %% FUNCIONES EXTRA DE MENSAJES
