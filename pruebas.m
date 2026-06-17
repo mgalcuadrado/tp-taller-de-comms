@@ -25,7 +25,7 @@
     nombre_archivo_out = "salida_analisis_sist.txt";
     [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
     entradaM = 1;
-    for i=1:4
+    for i=1:2 %para M2 y M4
         entradaM = entradaM * 2;
         %PSK SIN Y CON CODIFICACIÓN DE CANAL
         prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "PSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
@@ -146,9 +146,6 @@ function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, codif
     nombre_figura = "BER en función del Eb/No " + cadena_cod + " en " + cadena_modulacion;
     figure(name=nombre_figura)
     plot(linspace(0,10, 11), arreglo_ber);
-end
-
-    
 end
 
 %% FUNCIONES EXTRA DE MENSAJES
