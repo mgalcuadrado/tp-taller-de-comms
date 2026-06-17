@@ -4,12 +4,12 @@ function [bitsDetectados, simbolosDetectados, SER, BER]=demodulador(entradaOrigi
 
 
     [bitsDetectados, simbolosDetectados] = demodularSimbolos(transmisionRuidosa,entradaM,mapeoTipo,modulacionTipo);
-    
+    disp(entradaM);
     disp('El error de símbolo se estima en');
-    SER = errorSimbolo(simbolosOriginales,simbolosDetectados); %sacar ;
+    SER = errorSimbolo(simbolosOriginales,simbolosDetectados) %sacar ;
     
     disp('El error de bit se estima en:');
-    BER = errorBit(entradaOriginal,bitsDetectados); %sacar ;
+    BER = errorBit(entradaOriginal,bitsDetectados) %sacar ;
     
     % %% Grafico de las regiones de decision PSK, muestras teoricas y ruidosas
     % colorYellowGreen = [154, 205, 50] / 255;
@@ -144,12 +144,11 @@ end
 
 
 function BER = errorBit(bitsTransmitidos, bitsRecibidos)
-   
-    numBits=length(bitsTransmitidos);
+    numBits = length(bitsTransmitidos);
     
-    %Los bits erroneos son los que son distintos
-    bitsErroneos=sum(bitsRecibidos~=bitsTransmitidos);
-    
-    %Estimo el error de bit
-    BER=bitsErroneos/numBits;
+    % Trunco los bits recibidos por redondeo
+    bitsRecibidos = bitsRecibidos(1:numBits);
+
+    bitsErroneos = sum(bitsRecibidos ~= bitsTransmitidos);
+    BER = bitsErroneos / numBits;
 end
