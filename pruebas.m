@@ -3,7 +3,8 @@
    prueba_cod_fuente_directo_decod_fuente("sherlock_holmes.txt", "sherlock_decoded.txt");
 
 %% PRUEBAS CANAL
-  
+   %arreglo_huffman = cod_fuente("entrada.txt");
+   %arreglo_a_archivo(arreglo_huffman, "entrada_pruebas_codificado_fuente.txt");
    [k, n, G, ~] = parametros();
    prueba_cod_canal_directo_decod_canal("entrada_pruebas_codificado_fuente.txt", "salida_prueba1.txt", k, n, G);
    

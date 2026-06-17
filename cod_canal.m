@@ -8,8 +8,8 @@ function arreglo_salida = cod_canal(arreglo, k, n, G)
         suma_extra = n;
     end
     size_salida = int32(suma_extra + n * ceil(size(arreglo, 2) / k)); 
-    suma_extra = mod(size_salida, 12);
-    size_salida = size_salida + (12-suma_extra);
+    %suma_extra = mod(size_salida, 16);
+    %size_salida = size_salida + (16-suma_extra);
     arreglo_salida = zeros(1, size_salida); 
     indice_original = 1;
     indice_nuevo = 1;

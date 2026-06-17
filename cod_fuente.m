@@ -86,17 +86,26 @@ function entropia = calcular_entropia_fuente(probas)
 end
 
 function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccionario, cant_distintos, cant_totales, avglen)
-    salida_codificacion= zeros(1,length(cant_totales) * ceil(avglen));
+    % Se agrega en una suerte de "header" al arreglo indicando una cantidad
+    % impar de veces (se elije 3, quizás con más ruido haya que hacerlo 5,
+    % lo vemos) la cantidad total de caracteres de entrada del archivo. 
+    cant_totales_64 = uint64(cant_totales);
+    cant_totales_en_bits = dec2bin(cant_totales_64, 64);
+    arreglo_bits_cabecera = cant_totales_en_bits - '0';
+    header_repetido = repmat(arreglo_bits_cabecera, 1, 3); %3 es la cantidad de veces que se repite
+    %
+    salida_codificacion= zeros(1,length(header_repetido) + cant_totales * ceil(avglen));
+    salida_codificacion(1, 1:length(header_repetido)) = header_repetido;
+    indice = length(header_repetido) + 1;
     archivo_entrada = abrir_archivo_lectura(nombre_archivo_entrada);
     archivo_salida = fopen(nombre_archivo_salida, 'w'); 
-    
     % Creo un mapa hash para buscar en el diccionario
     claves = cell2mat(diccionario(:, 1));
     codigos = diccionario(:, 2);
     mapaHuffman = containers.Map(uint8(claves), codigos);
     
     caracter = fread(archivo_entrada, 1, '*char');
-    indice = 1; 
+    
     
     while caracter ~= char(0)
 
@@ -124,12 +133,12 @@ function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_
         end
     end
     
-    if indice + length(diccionario{cant_distintos, 2}) > length(salida_codificacion)
-        fprintf("Redimensión del arreglo de codificación de fuente para el end of file\n");
-        salida_codificacion = [salida_codificacion, zeros(1, length(diccionario{cant_distintos, 2}))];
-    end
-    salida_codificacion(indice: (indice - 1 + length(diccionario{cant_distintos, 2}))) = diccionario{cant_distintos, 2};
-    indice = indice + length(diccionario{cant_distintos, 2});
+    % if indice + length(diccionario{cant_distintos, 2}) > length(salida_codificacion)
+    %     fprintf("Redimensión del arreglo de codificación de fuente para el end of file\n");
+    %     salida_codificacion = [salida_codificacion, zeros(1, length(diccionario{cant_distintos, 2}))];
+    % end
+    % salida_codificacion(indice: (indice - 1 + length(diccionario{cant_distintos, 2}))) = diccionario{cant_distintos, 2};
+    % indice = indice + length(diccionario{cant_distintos, 2});
     if indice > length(salida_codificacion)
         salida_codificacion = salida_codificacion(1:indice + 1);
     end
