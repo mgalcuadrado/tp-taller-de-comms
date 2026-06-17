@@ -133,6 +133,9 @@ function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_
     if indice > length(salida_codificacion)
         salida_codificacion = salida_codificacion(1:indice + 1);
     end
+    if mod(length(salida_codificacion), 12) ~= 0
+        salida_codificacion = [salida_codificacion, zeros(1, 12 - mod(length(salida_codificacion)))]; %acá chequear este límite para la modulación 
+    end
     fwrite(archivo_salida, char(0), 'char');
     disp('Cerrando archivos...')
     fclose(archivo_salida);

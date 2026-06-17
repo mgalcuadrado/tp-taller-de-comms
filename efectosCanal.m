@@ -1,6 +1,6 @@
 
  
-function [simbolosCanal]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo)
+function [simbolosCanal]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM)
 
     SNRlin = 10^(SNR/10);
     N0 = energiaSimbolo / SNRlin;

@@ -7,7 +7,7 @@ function arreglo_salida = cod_canal(arreglo, k, n, G)
     if mod(size(arreglo, 2), k)~= 0 
         suma_extra = n;
     end
-    size_salida = int32(suma_extra + n * ceil(size(arreglo, 2) / k)); %acá chequear en función de qué hacemos con el último bloque que va a quedar incompleto
+    size_salida = int32(suma_extra + n * ceil(size(arreglo, 2) / k)); 
     suma_extra = mod(size_salida, 12);
     size_salida = size_salida + (12-suma_extra);
     arreglo_salida = zeros(1, size_salida); 
