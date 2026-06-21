@@ -71,7 +71,7 @@
     modulacionTipo = "PSK";
     entradaM = 2; 
     %prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, aplicarRuido, aplicarAtenuacion);
-    prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, false, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, aplicarRuido, aplicarAtenuacion);
+    %prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, false, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, aplicarRuido, aplicarAtenuacion);
     % con Sherlock 
     [arreglo_in_cod_fuente, ~] = cod_fuente("sherlock_holmes.txt");
     prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, false, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, aplicarRuido, aplicarAtenuacion);
@@ -163,7 +163,7 @@ function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codifi
         EbNo = EbNo_vec(idx);
         [arreglo_Pe(idx), arreglo_Pb(idx)] = calcular_probabilidades_teoricas(EbNo, entradaM, modulacionTipo);
        
-        for i = 1:5
+        %for i = 1:5
             snr_actual = EbNo + 10*log10(log2(entradaM));
             [SER, BER] = prueba_programa_completo(...
                 nombre_archivo_in,...
@@ -180,11 +180,11 @@ function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codifi
                 aplicarAtenuacion);
             arreglo_ser(idx) = arreglo_ser(idx) + SER;
             arreglo_ber(idx) = arreglo_ber(idx) + BER;
-        end
+       % end
 
     end
-    arreglo_ser = arreglo_ser/5;
-    arreglo_ber = arreglo_ber/5;
+    % arreglo_ser = arreglo_ser/5;
+    % arreglo_ber = arreglo_ber/5;
     cadena_modulacion = int2str(entradaM) + "-" + modulacionTipo;
     if codificaciondecanal
         cadena_cod = "con codificacion de canal";
@@ -257,7 +257,7 @@ function prueba_analisis_de_sistema_acotada(arreglo, codificaciondecanal, k,n,G,
             
         mensaje_prueba_mod_demod_efectos_canal(mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
             
-        for i = 1:5
+       % for i = 1:5
 
             [energiaSimbolo, energiaBit, simbolosModulados, simbolosOriginales, constelacion]=modulador(arreglo, entradaM, mapeoTipo,modulacionTipo);
             [simbolosModulados]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,snr_actual, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM);
@@ -266,11 +266,11 @@ function prueba_analisis_de_sistema_acotada(arreglo, codificaciondecanal, k,n,G,
             arreglo_ser(idx) = arreglo_ser(idx) + SER;
             arreglo_ber(idx) = arreglo_ber(idx) + BER;
 
-        end
+        %end
     end
 
-    arreglo_ser = arreglo_ser/5;
-    arreglo_ber = arreglo_ber/5;
+    % arreglo_ser = arreglo_ser/5;
+    % arreglo_ber = arreglo_ber/5;
     cadena_modulacion = int2str(entradaM) + "-" + modulacionTipo;
 
     if codificaciondecanal
