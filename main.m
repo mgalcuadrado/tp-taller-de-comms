@@ -37,14 +37,14 @@
     nombre_archivo_in = "entrada.txt";
     nombre_archivo_out = "salida_analisis_sist.txt";
     [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
-    entradaM = 2; %para arrancar en M4
-    for i=1:1
+    entradaM = 1; %para arrancar en M8
+    for i=1:2 
         entradaM = entradaM * 2;
         %PSK SIN Y CON CODIFICACIÓN DE CANAL
-        %prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "PSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+        prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "PSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
         prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, false, k, n,G, mapeoTipo, "PSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
         %FSK SIN Y CON CODIFICACIÓN DE CANAL
-        %prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "FSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+        prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "FSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
         prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, false, k, n,G, mapeoTipo, "FSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     end   
     
@@ -55,11 +55,11 @@
     [k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, ~] = parametros();
     aplicarRuido = false;
     aplicarAtenuacion = false;
-    prueba_programa_completo("hola.txt", "chau.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    %prueba_programa_completo("hola.txt", "chau.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("entrada.txt", "salida_cod_decod.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("sherlock_holmes.txt", "mycroft_holmes.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     aplicarRuido = true;
-    prueba_programa_completo("hola.txt", "chau.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    %prueba_programa_completo("hola.txt", "chau.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("entrada.txt", "salida_cod_decod.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("sherlock_holmes.txt", "mycroft_holmes.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
 
@@ -81,8 +81,8 @@
     arreglo_in_cod_fuente = (archivo_a_arreglo(nombre_archivo_in_cod_fuente));
     [k,n,G, mapeoTipo, ~, ~, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
     modulacionTipo = "PSK";
-    entradaM = 2; 
-    %prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    entradaM = 16; 
+    prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, false, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
 
     %% FUNCIONES PARA PRUEBAS
@@ -163,17 +163,20 @@ end
 
 function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codificaciondecanal, k, n, G,mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR,...
     aplicarRuido, aplicarAtenuacion)
+
     EbNo_vec = 0:10;
+
     arreglo_ser = zeros(size(EbNo_vec));
     arreglo_ber = zeros(size(EbNo_vec));
-    arreglo_Pe = zeros(size(EbNo_vec));
-    arreglo_Pb = zeros(size(EbNo_vec));
+
     for idx = 1:length(EbNo_vec)
+
         EbNo = EbNo_vec(idx);
-        [arreglo_Pe(idx), arreglo_Pb(idx)] = calcular_probabilidades_teoricas(EbNo, entradaM, modulacionTipo);
-       
+
         for i = 1:5
+
             snr_actual = EbNo + 10*log10(log2(entradaM));
+
             [SER, BER] = prueba_programa_completo(...
                 nombre_archivo_in,...
                 nombre_archivo_out,...
@@ -187,25 +190,27 @@ function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codifi
                 snr_actual,...
                 aplicarRuido,...
                 aplicarAtenuacion);
+
             arreglo_ser(idx) = arreglo_ser(idx) + SER;
             arreglo_ber(idx) = arreglo_ber(idx) + BER;
-        end
 
+        end
     end
-    arreglo_ser = arreglo_ser/5
+
+    arreglo_ser = arreglo_ser/5;
     arreglo_ber = arreglo_ber/5;
+
     cadena_modulacion = int2str(entradaM) + "-" + modulacionTipo;
+
     if codificaciondecanal
         cadena_cod = "con codificacion de canal";
     else
         cadena_cod = "sin codificacion de canal";
     end
+
     %% Guardar resultados
 
     tabla_resultados = [EbNo_vec(:), arreglo_ser(:), arreglo_ber(:)];
-    %para pruebas:
-    nombre_archivo = "M=" + int2str(entradaM) + modulacionTipo;
-    arreglo_a_archivo(tabla_resultados, nombre_archivo)
 
     nombre_txt = "resultados_M=2" + cadena_modulacion + "_" + ...
                  strrep(cadena_cod," ","_") + ".txt";
@@ -218,17 +223,14 @@ function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codifi
                     " en " + cadena_modulacion;
 
     figure('Name', nombre_figura)
-    
+
     semilogy(EbNo_vec, arreglo_ser,'o-','LineWidth',1.5)
-    hold on
-        semilogy(EbNo_vec,arreglo_Pe,'o-', 'LineWidth',1.5)
+
     grid on
 
     xlabel('E_b/N_0 (dB)')
     ylabel('SER')
-    legend('Simulada', 'Teórica')
     title(nombre_figura)
-
 
     %% Graficar BER
 
@@ -238,27 +240,26 @@ function prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codifi
     figure('Name', nombre_figura)
 
     semilogy(EbNo_vec, arreglo_ber,'o-','LineWidth',1.5)
-    hold on
-        semilogy(EbNo_vec,arreglo_Pb,'o-', 'LineWidth',1.5)
+
     grid on
 
     xlabel('E_b/N_0 (dB)')
-    ylabel('SER')
-    legend('Simulada', 'Teórica')
+    ylabel('BER')
+    title(nombre_figura)
 
 end
 
 
 function prueba_analisis_de_sistema_acotada(arreglo, codificaciondecanal, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
-    EbNo_vec = 0:10;
+EbNo_vec = 0:10;
+
     arreglo_ser = zeros(size(EbNo_vec));
     arreglo_ber = zeros(size(EbNo_vec));
-    arreglo_Pe = zeros(size(EbNo_vec));
-    arreglo_Pb = zeros(size(EbNo_vec));
+
     for idx = 1:length(EbNo_vec)
 
         EbNo = EbNo_vec(idx);
-        [arreglo_Pe(idx), arreglo_Pb(idx)] = calcular_probabilidades_teoricas(EbNo, entradaM, modulacionTipo);
+
         if codificaciondecanal
                 arreglo= cod_canal(arreglo, k, n, G);
         end
@@ -306,13 +307,11 @@ function prueba_analisis_de_sistema_acotada(arreglo, codificaciondecanal, k,n,G,
     figure('Name', nombre_figura)
 
     semilogy(EbNo_vec, arreglo_ser,'o-','LineWidth',1.5)
-    hold on
-        semilogy(EbNo_vec,arreglo_Pe,'o-', 'LineWidth',1.5)
+
     grid on
 
     xlabel('E_b/N_0 (dB)')
     ylabel('SER')
-    legend('Simulada', 'Teórica')
     title(nombre_figura)
 
     %% Graficar BER
@@ -329,38 +328,6 @@ function prueba_analisis_de_sistema_acotada(arreglo, codificaciondecanal, k,n,G,
     xlabel('E_b/N_0 (dB)')
     ylabel('BER')
     title(nombre_figura)  
-end
-
-%% FUNCIONES PARA CÁLCULO DE PROBABILIDADES TEÓRICAS
-
-function [Pb, Pe] = calcular_probabilidades_teoricas(EbNodB, M, modulacion)
-    EbNo = 10^(EbNodB/10);
-    k = log2(M);
-    switch upper(modulacion)
-        case 'PSK'
-            % Número medio de bits erróneos (Gray)
-            nb = 1; 
-            if M > 2
-                nb = 2;
-            end
-            % Es/N0
-            EsNo = k * EbNo;
-            % Probabilidad de error de símbolo
-            Pe = qfunc(sqrt(2 * EsNo) * sin(pi/M));
-            % Probabilidad de error de bit
-            Pb = (nb/k) * Pe;
-
-        case 'FSK'
-            % Es/N0
-            EsNo = k * EbNo;
-            % Cota superior de Pe
-            Pe = (M-1) * qfunc(sqrt(EsNo));
-            % Probabilidad de error de bit
-            Pb = (M/(2*(M-1))) * Pe;
-         
-        otherwise
-            error('Tipo de modulación no válido. ');
-    end
 end
 
 
