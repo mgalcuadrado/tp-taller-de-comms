@@ -17,16 +17,16 @@
    %primero se realiza una prueba sin ruido ni atenuación
    aplicarRuido = false;
    aplicarAtenuacion = false;
-   prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
+   [~] = prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
      
     %luego se realiza una prueba con ruido bajo (10dB) y sin atenuación
     snr_actual = 10; %dB
     aplicarRuido = true;
-    prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
+    [~] = prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
   
     %se realiza una prueba con ruido alto (1dB) y sin atenuación
     snr_actual = 1;
-    prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
+    [~] = prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_entrada, nombre_archivo_salida, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
 
 %% PRUEBAS FUENTE + CANAL
     prueba_cod_decod_fuente_canal("entrada.txt", "salida2.txt");
@@ -43,7 +43,7 @@
         %PSK SIN Y CON CODIFICACIÓN DE CANAL
         [EbNo_vec, ser_con, ber_con, Pe_teo, Pb_teo] = prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, true, k, n,G, mapeoTipo, "PSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, false);
         [~, ser_sin, ber_sin, ~, ~] = prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, false, k, n,G, mapeoTipo, "PSK", entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, false);
-
+        
         cadena_modulacion = int2str(entradaM) + "-PSK";
 
         %% Gráfico combinado SER: teórica + simulada sin cod + simulada con cod
@@ -90,27 +90,33 @@
     prueba_programa_completo("entrada.txt", "salida_cod_decod.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     prueba_programa_completo("sherlock_holmes.txt", "mycroft_holmes.txt", true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
 
-%%  Prueba de análisis de sistema para casos puntuales
+%%  Prueba de análisis de sistema con y sin codificación de canal
     %prueba 8-PSK con y sin cod canal 
     %nombre_archivo_in = "texto_grande.txt";
     nombre_archivo_in = "sherlock_holmes.txt";
     nombre_archivo_out = "salida_analisis_sist.txt";
+    nombre_archivo_cod_fuente = "archivo_intermedio.txt";
     [k,n,G, mapeoTipo, ~, ~, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
     modulacionTipo = "PSK";
     entradaM = 8; 
     %prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, codificaciondecanal, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
-    prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, true,                k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
-    prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, false,               k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
-   
-%% Prueba para análsis de sistema pre-codificado por fuente y sin decodificar
+    [EbNo_vec, arreglo_ser_ccc, arreglo_ber_ccc, arreglo_Pe_ccc, arreglo_Pb_ccc]  = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, true,                k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
+    [~,arreglo_ser_scc, arreglo_ber_scc, arreglo_Pe_scc, arreglo_Pb_scc] = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, false,               k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
+    graficar_analisis_de_sistema(true, EbNo_vec, arreglo_ser_scc, arreglo_ber_scc, arreglo_Pe_scc, arreglo_Pb_scc, arreglo_ser_ccc, arreglo_ber_ccc, arreglo_Pe_ccc, arreglo_Pb_ccc, entradaM, modulacionTipo);
 
-    nombre_archivo_in_cod_fuente = "entrada_pruebas_codificado_fuente.txt";
-    arreglo_in_cod_fuente = (archivo_a_arreglo(nombre_archivo_in_cod_fuente));
+%%  Prueba de análisis de sistema sin codificación de canal
+    %prueba 8-PSK con y sin cod canal 
+    %nombre_archivo_in = "texto_grande.txt";
+    nombre_archivo_in = "sherlock_holmes.txt";
+    nombre_archivo_out = "salida_analisis_sist.txt";
+    nombre_archivo_cod_fuente = "archivo_intermedio.txt";
     [k,n,G, mapeoTipo, ~, ~, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
     modulacionTipo = "PSK";
-    entradaM = 2; 
-    %prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, true, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
-    prueba_analisis_de_sistema_acotada(arreglo_in_cod_fuente, false, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
+    entradaM = 8; 
+    %prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, codificaciondecanal, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
+    %[EbNo_vec, arreglo_ser_ccc, arreglo_ber_ccc, arreglo_Pe_ccc, arreglo_Pb_ccc]  = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, true,                k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
+    [EbNo_vec,arreglo_ser_scc, arreglo_ber_scc, arreglo_Pe_scc, arreglo_Pb_scc] = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, false,               k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
+    graficar_analisis_de_sistema(false, EbNo_vec, arreglo_ser_scc, arreglo_ber_scc, arreglo_Pe_scc, arreglo_Pb_scc, 0, 0, 0, 0, entradaM, modulacionTipo);
 
     %% FUNCIONES PARA PRUEBAS
 
@@ -127,14 +133,14 @@ function prueba_cod_canal_directo_decod_canal(nombre_archivo_in, nombre_archivo_
     fprintf("INICIO DE PRUEBA DE CODIFICACIÓN Y DECODIFICACIÓN DE CANAL CON ARCHIVO DE ENTRADA %s\n", nombre_archivo_in);
     arreglo_in = archivo_a_arreglo(nombre_archivo_in);
     arreglo_out_cod = cod_canal(arreglo_in, k, n, G);
-    [arreglo_out, dmin, e, t] = decod_canal(arreglo_out_cod, k, n, G);
+    [arreglo_out, dmin, e, t, ~] = decod_canal(arreglo_out_cod, k, n, G, false, 0);
     mensaje_prueba_cod_decod_canal(k, n, G, dmin, e, t);
     arreglo_a_archivo(arreglo_out, nombre_archivo_out);
     comparar_entrada_y_salida(nombre_archivo_in, nombre_archivo_out);
     fprintf("FIN DE PRUEBA DE CODIFICACIÓN Y DECODIFICACIÓN DE CANAL CON ARCHIVO DE ENTRADA %s\n", nombre_archivo_in);
 end
 
-function prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_in, nombre_archivo_out, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
+function [SER, BER] = prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_in, nombre_archivo_out, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
     fprintf("INICIO DE PRUEBA DE MODULACIÓN, EFECTOS DE CANAL Y DEMODULACIÓN CON ARCHIVO DE ENTRADA %s\n", nombre_archivo_in);
     mensaje_prueba_mod_demod_efectos_canal(mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
     entrada = archivo_a_arreglo(nombre_archivo_in);
@@ -142,7 +148,7 @@ function prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_
     [simbolosModulados]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM);
     %La entrada original y simbolosOriginales entran para calcular el error de
     %bit/simbolo
-    [bitsDetectados, simbolosDetectados, ~]=demodulador(entrada,simbolosOriginales,simbolosModulados,entradaM,mapeoTipo,modulacionTipo, constelacion);
+    [bitsDetectados, simbolosDetectados, SER, BER]=demodulador(entrada,simbolosOriginales,simbolosModulados,entradaM,mapeoTipo,modulacionTipo, constelacion);
     arreglo_a_archivo(bitsDetectados, nombre_archivo_out);
     comparar_entrada_y_salida(nombre_archivo_in, nombre_archivo_out);
     fprintf("FIN DE PRUEBA DE MODULACIÓN, EFECTOS DE CANAL Y DEMODULACIÓN CON ARCHIVO DE ENTRADA %s\n", nombre_archivo_in);
@@ -156,7 +162,7 @@ function prueba_cod_decod_fuente_canal(nombre_archivo_entrada, nombre_archivo_sa
     fprintf("La longitud mínima de codificación de Huffman es de %d, la promedio es de %d y la eficiencia se encuentra en %.2f\n", longitud_minima, longitud_promedio, eficiencia);
     [k,n,G, ~] = parametros();
     arreglo_salida_cod_canal = cod_canal(arreglo_salida_cod_fuente, k, n, G);
-    [arreglo_salida_decod_canal, dmin, e, t] = decod_canal(arreglo_salida_cod_canal, k, n, G); 
+    [arreglo_salida_decod_canal, dmin, e, t, ~] = decod_canal(arreglo_salida_cod_canal, k, n, G, false, 0); 
     fprintf("La distancia mínima es de %d, la cantidad de errores detectables es de %d y la cantidad de errores corregibles es de %d\n", dmin, e, t);
     decod_fuente(arreglo_salida_decod_canal, nombre_archivo_salida, diccionario, cant_distintos);  
     comparar_entrada_y_salida(nombre_archivo_entrada, nombre_archivo_salida);
@@ -178,7 +184,7 @@ function [SER, BER] = prueba_programa_completo(nombre_archivo_entrada, nombre_ar
     [simbolosModulados]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM);
     [bitsDetectados, simbolosDetectados, SER, BER]=demodulador(arreglo_salida_cod_canal,simbolosOriginales,simbolosModulados,entradaM,mapeoTipo,modulacionTipo, constelacion);
     if codificaciondecanal
-        [arreglo_salida_decod_canal, dmin, e, t] = decod_canal(bitsDetectados, k, n, G);
+        [arreglo_salida_decod_canal, dmin, e, t, ~] = decod_canal(bitsDetectados, k, n, G, false, 0);
         mensaje_prueba_cod_decod_canal(k, n, G, dmin, e, t);
     else
         arreglo_salida_decod_canal = bitsDetectados;
@@ -189,185 +195,107 @@ function [SER, BER] = prueba_programa_completo(nombre_archivo_entrada, nombre_ar
 end
 
 function [EbNo_vec, arreglo_ser, arreglo_ber, arreglo_Pe, arreglo_Pb] = prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out,codificaciondecanal, k, n, G,mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR,...
-    aplicarRuido, aplicarAtenuacion, mostrar_grafico)
-    if nargin < 15
-        mostrar_grafico = true;
-    end
+    aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente)
     EbNo_vec = 0:10;
     arreglo_ser = zeros(size(EbNo_vec));
     arreglo_ber = zeros(size(EbNo_vec));
     arreglo_Pe = zeros(size(EbNo_vec));
     arreglo_Pb = zeros(size(EbNo_vec));
     for idx = 1:length(EbNo_vec)
-        EbNo = EbNo_vec(idx);
+       EbNo = EbNo_vec(idx);
+       factor_canal = 1;
         %[Pb, Pe] = calcular_probabilidades_teoricas(EbNodB, M, modulacion)
-        [arreglo_Pb(idx), arreglo_Pe(idx)] = calcular_probabilidades_teoricas(EbNo, entradaM, modulacionTipo);
-       
-        %for i = 1:5
-            snr_actual = EbNo + 10*log10(log2(entradaM));
-            [SER, BER] = prueba_programa_completo(...
-                nombre_archivo_in,...
-                nombre_archivo_out,...
-                codificaciondecanal,...
-                k, n, G,...
-                mapeoTipo,...
-                modulacionTipo,...
-                entradaM,...
-                min_atenuacion,...
-                max_atenuacion,...
-                snr_actual,...
-                aplicarRuido,...
-                aplicarAtenuacion);
-            arreglo_ser(idx) = arreglo_ser(idx) + SER;
-            arreglo_ber(idx) = arreglo_ber(idx) + BER;
-        %end
-
+        if codificaciondecanal
+            factor_canal = k/n; 
+        end
+        [arreglo_Pb(idx), arreglo_Pe(idx)] = calcular_probabilidades_teoricas(EbNo, entradaM, modulacionTipo, factor_canal);
+        snr_actual = EbNo + 10*log10(log2(entradaM)) + log10(factor_canal); %cuando no hay codificaciondecanal log10(factor_canal) = 0
+        [arreglo_salida_cod_fuente, ~] = cod_fuente(nombre_archivo_in);
+        arreglo_a_archivo(arreglo_salida_cod_fuente, nombre_archivo_cod_fuente)
+        if ~codificaciondecanal
+            [SER, BER] = prueba_modulador_directo_demodulador(mapeoTipo, modulacionTipo, nombre_archivo_cod_fuente, nombre_archivo_out, entradaM, min_atenuacion, max_atenuacion, snr_actual, aplicarRuido, aplicarAtenuacion);
+        else 
+           [SER, BER] = calculo_ser_ber_con_cod_canal(arreglo_salida_cod_fuente,nombre_archivo_out,codificaciondecanal, ...
+                k, n, G,mapeoTipo,modulacionTipo,entradaM,min_atenuacion,max_atenuacion,...
+                snr_actual,aplicarRuido,aplicarAtenuacion);
+        end
+        arreglo_ser(idx) = arreglo_ser(idx) + SER;
+        arreglo_ber(idx) = arreglo_ber(idx) + BER;
     end
-    %arreglo_ser = arreglo_ser/5
-    %arreglo_ber = arreglo_ber/5;
-    cadena_modulacion = int2str(entradaM) + "-" + modulacionTipo;
-    if codificaciondecanal
-        cadena_cod = "con codificacion de canal";
-    else
-        cadena_cod = "sin codificacion de canal";
-    end
-    %% Guardar resultados
-
-    tabla_resultados = [EbNo_vec(:), arreglo_ser(:), arreglo_ber(:)];
-    %para pruebas:
-    nombre_archivo = "M=" + int2str(entradaM) + modulacionTipo;
-    arreglo_a_archivo(tabla_resultados, nombre_archivo)
-
-    nombre_txt = "resultados_M=2" + cadena_modulacion + "_" + ...
-                 strrep(cadena_cod," ","_") + ".txt";
-
-    writematrix(tabla_resultados, nombre_txt, 'Delimiter','tab');
-
-    if mostrar_grafico
-    %% Graficar SER
-
-    nombre_figura = "SER vs Eb/No " + cadena_cod + ...
-                    " en " + cadena_modulacion;
-
-    figure('Name', nombre_figura)
-    
-    semilogy(EbNo_vec, arreglo_ser,'o-','LineWidth',1.5, 'DisplayName','Simulada')
-    hold on
-        semilogy(EbNo_vec,arreglo_Pe,'o-', 'LineWidth',1.5, 'DisplayName','Teórica')
-    grid on
-
-    xlabel('E_b/N_0 (dB)')
-    ylabel('P_e')
-    legend show
-    %title(nombre_figura)
-
-
-    %% Graficar BER
-
-    nombre_figura = "BER vs Eb/No " + cadena_cod + ...
-                    " en " + cadena_modulacion;
-
-    figure('Name', nombre_figura)
-
-    semilogy(EbNo_vec, arreglo_ber,'o-','LineWidth',1.5, 'DisplayName','Simulada')
-    hold on
-        semilogy(EbNo_vec,arreglo_Pb,'o-', 'LineWidth',1.5, 'DisplayName','Teórica')
-    grid on
-    xlabel('E_b/N_0 (dB)')
-    ylabel('P_b')
-    legend show
-    end
-
 end
 
 
-function prueba_analisis_de_sistema_acotada(arreglo, codificaciondecanal, k,n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
-    EbNo_vec = 0:10;
-    arreglo_ser = zeros(size(EbNo_vec));
-    arreglo_ber = zeros(size(EbNo_vec));
-    arreglo_Pe = zeros(size(EbNo_vec));
-    arreglo_Pb = zeros(size(EbNo_vec));
-    for idx = 1:length(EbNo_vec)
 
-        EbNo = EbNo_vec(idx);
-        %[Pb, Pe] = calcular_probabilidades_teoricas(EbNodB, M, modulacion)
-        [arreglo_Pb(idx), arreglo_Pe(idx)] = calcular_probabilidades_teoricas(EbNo, entradaM, modulacionTipo);
-        if codificaciondecanal
-                arreglo= cod_canal(arreglo, k, n, G);
-        end
-        snr_actual = EbNo + 10*log10(log2(entradaM));
-            
-        mensaje_prueba_mod_demod_efectos_canal(mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion);
-            
-        %for i = 1:5
 
-            [energiaSimbolo, energiaBit, simbolosModulados, simbolosOriginales, constelacion]=modulador(arreglo, entradaM, mapeoTipo,modulacionTipo);
-            [simbolosModulados]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM);
-            [bitsDetectados, simbolosDetectados, SER, BER]=demodulador(arreglo,simbolosOriginales,simbolosModulados,entradaM,mapeoTipo,modulacionTipo, constelacion);
-   
-            arreglo_ser(idx) = arreglo_ser(idx) + SER;
-            arreglo_ber(idx) = arreglo_ber(idx) + BER;
+%% FUNCIÓN PARA GRAFICAR EL ANÁLISIS DE SISTEMA
 
-        %end
-    end
-
-    %arreglo_ser = arreglo_ser/5;
-    %arreglo_ber = arreglo_ber/5;
-
+function graficar_analisis_de_sistema(codificaciondecanal, EbNo_vec, arreglo_ser_scc, arreglo_ber_scc, arreglo_Pe_scc, arreglo_Pb_scc, arreglo_ser_ccc, arreglo_ber_ccc, arreglo_Pe_ccc, arreglo_Pb_ccc, entradaM, modulacionTipo)
     cadena_modulacion = int2str(entradaM) + "-" + modulacionTipo;
 
     if codificaciondecanal
-        cadena_cod = "con codificacion de canal";
+        cadena_cod = "sin y con codificacion de canal";
     else
         cadena_cod = "sin codificacion de canal";
     end
-
-    %% Guardar resultados
-
-    tabla_resultados = [EbNo_vec(:), arreglo_ser(:), arreglo_ber(:)];
-
-    nombre_txt = "resultados_M=2" + cadena_modulacion + "_" + ...
-                 strrep(cadena_cod," ","_") + ".txt";
-
-    writematrix(tabla_resultados, nombre_txt, 'Delimiter','tab');
-
-    %% Graficar SER
+    % Graficar SER
 
     nombre_figura = "SER vs Eb/No " + cadena_cod + ...
                     " en " + cadena_modulacion;
 
     figure('Name', nombre_figura)
 
-    semilogy(EbNo_vec, arreglo_ser,'o-','LineWidth',1.5)
+    semilogy(EbNo_vec, arreglo_ser_scc,'o-','LineWidth',1.5)
     hold on
-        semilogy(EbNo_vec,arreglo_Pe,'o-', 'LineWidth',1.5)
+        semilogy(EbNo_vec,arreglo_Pe_scc,'o-', 'LineWidth',1.5)
+        if codificaciondecanal
+            semilogy(EbNo_vec, arreglo_ser_ccc,'o-','LineWidth',1.5)
+            semilogy(EbNo_vec,arreglo_Pe_ccc,'o-', 'LineWidth',1.5)
+        end
     grid on
 
     xlabel('E_b/N_0 (dB)')
     ylabel('SER')
-    legend('Simulada', 'Teórica')
+    if codificaciondecanal
+        legend('Simulada s/CC', 'Teórica s/CC', 'Simulada c/CC', 'Teórica c/CC')
+    else
+        legend('Simulada', 'Teórica')
+    end
     title(nombre_figura)
 
-    %% Graficar BER
+    % Graficar BER
 
     nombre_figura = "BER vs Eb/No " + cadena_cod + ...
                     " en " + cadena_modulacion;
 
     figure('Name', nombre_figura)
 
-    semilogy(EbNo_vec, arreglo_ber,'o-','LineWidth',1.5)
-
+    semilogy(EbNo_vec, arreglo_ber_scc,'o-','LineWidth',1.5)
+    hold on
+        semilogy(EbNo_vec,arreglo_Pb_scc,'o-', 'LineWidth',1.5)
+        if codificaciondecanal
+            semilogy(EbNo_vec, arreglo_ber_ccc,'o-','LineWidth',1.5)
+            semilogy(EbNo_vec,arreglo_Pb_ccc,'o-', 'LineWidth',1.5)
+        end
     grid on
 
     xlabel('E_b/N_0 (dB)')
     ylabel('BER')
     title(nombre_figura)  
-end
+    if codificaciondecanal
+        legend('Simulada s/CC', 'Teórica s/CC', 'Simulada c/CC', 'Teórica c/CC')
+    else
+        legend('Simulada', 'Teórica')
+    end
+end    
+
 
 %% FUNCIONES PARA CÁLCULO DE PROBABILIDADES TEÓRICAS
 
-function [Pb, Pe] = calcular_probabilidades_teoricas(EbNodB, M, modulacion)
+    function [Pb, Pe] = calcular_probabilidades_teoricas(EbNodB, M, modulacion, factor_canal)
     EbNo = 10^(EbNodB/10);
+    if factor_canal ~= 1
+        EbNo = EbNo * factor_canal; 
+    end
     k = log2(M);
     switch upper(modulacion)
         case 'PSK'
@@ -376,12 +304,15 @@ function [Pb, Pe] = calcular_probabilidades_teoricas(EbNodB, M, modulacion)
             if M > 2
                 nb = 2;
             end
+            
             % Es/N0
             EsNo = k * EbNo;
             % Probabilidad de error de símbolo
             Pe = qfunc(sqrt(2 * EsNo) * sin(pi/M));
             % Probabilidad de error de bit
             Pb = (nb/k) * Pe;
+            
+            
 
         case 'FSK'
             % Es/N0
@@ -394,6 +325,36 @@ function [Pb, Pe] = calcular_probabilidades_teoricas(EbNodB, M, modulacion)
         otherwise
             error('Tipo de modulación no válido. ');
     end
+ end
+
+%% FUNCIÓN PARA CÁLCULO DE SER Y BER CON COD CANAL
+%se presupone que en arreglo_salida_cod_fuente hay un arreglo ya codificado por
+%fuente :D 
+function [SER, BER] = calculo_ser_ber_con_cod_canal(arreglo_salida_cod_fuente,nombre_archivo_out,codificaciondecanal, ...
+                k, n, G,mapeoTipo,modulacionTipo,entradaM,min_atenuacion,max_atenuacion,...
+                SNR,aplicarRuido,aplicarAtenuacion)
+                    fprintf("INICIO DE CÁLCULO DE SER Y BER CON CODIFICACIÓN DE CANAL para %s-%s con snr = %.2f\n", entradaM, modulacionTipo, SNR)
+                    arreglo_salida_cod_canal = cod_canal(arreglo_salida_cod_fuente, k, n, G);
+                    [energiaSimbolo, energiaBit, simbolosModulados, simbolosOriginales, constelacion]=modulador(arreglo_salida_cod_canal, entradaM, mapeoTipo,modulacionTipo);
+                    [simbolosModulados]=efectosCanal(simbolosModulados,min_atenuacion,max_atenuacion,SNR, energiaSimbolo, aplicarRuido, aplicarAtenuacion,modulacionTipo, entradaM);
+                    [bitsDetectados, simbolosDetectados, ~, ~]=demodulador(arreglo_salida_cod_canal,simbolosOriginales,simbolosModulados,entradaM,mapeoTipo,modulacionTipo, constelacion);
+                    [arreglo_salida_decod_canal, dmin, e, t, SER] = decod_canal(bitsDetectados, k, n, G, true, arreglo_salida_cod_fuente);
+                    BER = errorBit(arreglo_salida_cod_fuente, arreglo_salida_decod_canal);
+                    %decod_fuente(arreglo_salida_decod_canal, nombre_archivo_out, diccionario, cant_distintos);  
+                    %comparar_entrada_y_salida(nombre_archivo_entrada, nombre_archivo_out);
+                    fprintf("FIN DEL CÁLCULO DEL SER Y BER CON COD CANAL PARA %s-%s con snr = %.2f\n", entradaM, modulacionTipo, SNR);   
+end
+
+%% FUNCIONES CÁLCULO DE ERROR DE BIT Y DE SÍMBOLO 
+
+function BER = errorBit(bitsTransmitidos, bitsRecibidos)
+    numBits = length(bitsTransmitidos);
+    
+    % Trunco los bits recibidos por redondeo
+    bitsRecibidos = bitsRecibidos(1:numBits);
+
+    bitsErroneos = sum(bitsRecibidos ~= bitsTransmitidos);
+    BER = bitsErroneos / numBits;
 end
 
 
