@@ -7,7 +7,15 @@
    %arreglo_a_archivo(arreglo_huffman, "entrada_pruebas_codificado_fuente.txt");
    [k, n, G, ~] = parametros();
    prueba_cod_canal_directo_decod_canal("entrada_pruebas_codificado_fuente.txt", "salida_prueba1.txt", k, n, G);
-   
+
+ %% PRUEBAS DECOD CANAL CON NUEVA TABLA DE SÍNDROMES
+    [k, n, G, ~] = parametros();
+    arreglo = archivo_a_arreglo("entrada_deco_pruebas.txt");
+    [arreglo_salida, ~] = decod_canal(arreglo, k, n, G, false, char(0));
+    arreglo_a_archivo(arreglo_salida, "salida_deco_pruebas.txt");
+    
+
+
 
 %% PRUEBAS MODULACIÓN / DEMODULACIÓN
    nombre_archivo_entrada = "entrada_pruebas_codificado_fuente.txt";
@@ -97,8 +105,8 @@
     nombre_archivo_out = "salida_analisis_sist.txt";
     nombre_archivo_cod_fuente = "archivo_intermedio.txt";
     [k,n,G, mapeoTipo, ~, ~, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
-    modulacionTipo = "PSK";
-    entradaM = 8; 
+    modulacionTipo = "FSK";
+    entradaM = 16; 
     %prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, codificaciondecanal, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
     [EbNo_vec, arreglo_ser_ccc, arreglo_ber_ccc, arreglo_Pe_ccc, arreglo_Pb_ccc]  = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, true,                k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
     [~,arreglo_ser_scc, arreglo_ber_scc, arreglo_Pe_scc, arreglo_Pb_scc] = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, false,               k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
@@ -111,8 +119,8 @@
     nombre_archivo_out = "salida_analisis_sist.txt";
     nombre_archivo_cod_fuente = "archivo_intermedio.txt";
     [k,n,G, mapeoTipo, ~, ~, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion] = parametros();
-    modulacionTipo = "PSK";
-    entradaM = 8; 
+    modulacionTipo = "FSK";
+    entradaM = 2; 
     %prueba_analisis_de_sistema(nombre_archivo_in, nombre_archivo_out, codificaciondecanal, k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion)
     %[EbNo_vec, arreglo_ser_ccc, arreglo_ber_ccc, arreglo_Pe_ccc, arreglo_Pb_ccc]  = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, true,                k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
     [EbNo_vec,arreglo_ser_scc, arreglo_ber_scc, arreglo_Pe_scc, arreglo_Pb_scc] = prueba_analisis_de_sistema(nombre_archivo_in,  nombre_archivo_out, false,               k, n,G, mapeoTipo, modulacionTipo, entradaM, min_atenuacion, max_atenuacion, SNR, aplicarRuido, aplicarAtenuacion, nombre_archivo_cod_fuente);
