@@ -4,14 +4,13 @@ function [bitsDetectados, simbolosDetectados, SER, BER]=demodulador(entradaOrigi
 
 
     [bitsDetectados, simbolosDetectados] = demodularSimbolos(transmisionRuidosa,entradaM,mapeoTipo,modulacionTipo);
-    disp(entradaM);
-    disp('El error de símbolo se estima en');
-    SER = errorSimbolo(simbolosOriginales,simbolosDetectados) %sacar ;
-    
-    disp('El error de bit se estima en:');
-    BER = errorBit(entradaOriginal,bitsDetectados) %sacar ;
-    
-    % %% Grafico de las regiones de decision PSK, muestras teoricas y ruidosas
+    %disp(entradaM);
+    %disp('El error de símbolo se estima en');
+    SER = errorSimbolo(simbolosOriginales,simbolosDetectados);
+    %disp('El error de bit se estima en:');
+    BER = errorBit(entradaOriginal,bitsDetectados);
+
+    % %% Gráfico de las regiones de decision PSK, muestras teoricas y ruidosas
     % colorYellowGreen = [154, 205, 50] / 255;
     % 
     % k=log2(entradaM);
@@ -21,24 +20,24 @@ function [bitsDetectados, simbolosDetectados, SER, BER]=demodulador(entradaOrigi
     %     figure('Color', 'w'); hold on; grid on; axis equal;
     % 
     %     %lim = max(max(abs(constelacion))) + 1.5; 
-    %     lim = 2; %asi todas las imagenes tienen el mismo tamaño
+    %     lim = 2; %para que todas las imagenes tengan el mismo tamaño
     % 
-    %     %Grafico los simbolos que recibí, los hice un poco mas lindos
+    %     %Gráfico de los simbolos recibidos
     %     %plot(simbolosCanal(:,1), simbolosCanal(:,2), '.', 'Color', colorYellowGreen, 'MarkerSize', 15);
     %     scatter(transmisionRuidosa(:,1), transmisionRuidosa(:,2),50,colorYellowGreen, 'filled','MarkerFaceAlpha',0.4);
     % 
-    %     % Regiones de decision
+    %     % Regiones de decisión
     %     ang_sep = 2*pi/entradaM;
     %     for m = 0:entradaM-1
     %         theta = m*ang_sep - ang_sep/2;
     %         line([0 lim*cos(theta)], [0 lim*sin(theta)], 'Color', [0.5 0.5 0.5], 'LineStyle', '--');
     %     end
     % 
-    %     % Grafico los puntos ideales de la constelación
+    %     % Gráfico de los puntos ideales de la constelación
     %     %plot(constelacion(:,1), constelacion(:,2), 'o', 'MarkerSize', 10, 'MarkerFaceColor', colorYellowGreen,'MarkerEdgeColor', colorYellowGreen);
     %     scatter(constelacion(:,1), constelacion(:,2),100,colorYellowGreen, 'filled','MarkerFaceAlpha',1,'MarkerEdgeColor', 'b');
     % 
-    %     % Dibujo etiquetas de texto binarias al lado de los puntos ideales
+    %     % Dibujo de etiquetas de texto binarias al lado de los puntos ideales
     %     for m = 0:entradaM-1
     %         if strcmpi(mapeoTipo,'gray')
     %             etiqueta = bitxor(m,bitshift(m,-1));
@@ -58,39 +57,29 @@ function [bitsDetectados, simbolosDetectados, SER, BER]=demodulador(entradaOrigi
 end
 
 function [bitsRecibidos, simbolosDetectados] = demodularSimbolos(simbolos, M, mapeoTipo, modulacionTipo)
-
-
     k = log2(M);
     numSimbolos = size(simbolos, 1);
-
     % Hago la constelación de referencia de nuevo
     constelacion = zeros(M, 2);
     for m = 0:M-1
         constelacion(m+1, 1) = cos(2 * pi * m / M);
         constelacion(m+1, 2) = sin(2 * pi * m / M);
-  
     end
-
     % Inicializo el vector
     simbolosDetectados = zeros(numSimbolos, 1);
-    
     switch upper(modulacionTipo)
-
         case('PSK')
-    % Lo hacemos para cada simbolo
+    % Para cada símbolo:
             for i = 1:numSimbolos
                 puntoRecibido = simbolos(i, :);
-                
-                % Calculo la distancia a los puntos de la constelacion
+                % Cálculo de la distancia a los puntos de la constelacion
                 distancias = sqrt((constelacion(:,1) - puntoRecibido(1)).^2 + ...
                                   (constelacion(:,2) - puntoRecibido(2)).^2);
-                
-                % Agarro la distancia mas chica
-                [~, simbolosDetectados(i)] = min(distancias);
-                
+                % De todas las distancias calculadas se selecciona la
+                % mínima
+                [~, simbolosDetectados(i)] = min(distancias);    
             end
         case('FSK')
-
             [~, simbolosDetectados] = max(simbolos, [], 2);
         otherwise
             error('Tipo de modulación no soportada');
@@ -98,13 +87,11 @@ function [bitsRecibidos, simbolosDetectados] = demodularSimbolos(simbolos, M, ma
 
     simbolosDetectados=simbolosDetectados-1;
 
-    %Deshacer el Gray
-
+    %Se debe deshacer la codificación Gray de haber sido aplicada
     if strcmp(mapeoTipo, 'gray')
-
         simbolosBinarios = zeros(size(simbolosDetectados));
     
-        % Recorro cada símbolo recibido
+        % Se recorren todos los símbolos recibidos
         for i = 1:length(simbolosDetectados)
 
             valoresGray = simbolosDetectados(i);
@@ -115,7 +102,7 @@ function [bitsRecibidos, simbolosDetectados] = demodularSimbolos(simbolos, M, ma
                 valoresGray = bitshift(valoresGray, -1);
             end
             
-            % Guardo el valor final del simbolo
+            % Se guarda el valor final del símbolo
             simbolosBinarios(i) = valoresBinarios;
         end
     simbolosDetectados = simbolosBinarios;
@@ -131,14 +118,14 @@ function SER = errorSimbolo(simbolosTransmitidos, simbolosDemodulados)
 
     numSimbolos = size(simbolosTransmitidos, 1);
     
-    % Busco qué filas son diferentes
+    % Se busca qué filas difieren
     diferencias = sum(abs(simbolosTransmitidos - simbolosDemodulados), 2);
     diferencias = diferencias>0.001;
 
-    % Cuento los que tienen errores
+    % Se cuentan los errores
     simbolosError = sum(diferencias);
     
-    % Estimo la tasa de error
+    % Se estima la tasa de error
     SER = simbolosError / numSimbolos;
 end
 
@@ -146,7 +133,7 @@ end
 function BER = errorBit(bitsTransmitidos, bitsRecibidos)
     numBits = length(bitsTransmitidos);
     
-    % Trunco los bits recibidos por redondeo
+    % Se truncan los bits recibidos por redondeo
     bitsRecibidos = bitsRecibidos(1:numBits);
 
     bitsErroneos = sum(bitsRecibidos ~= bitsTransmitidos);

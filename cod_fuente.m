@@ -1,6 +1,6 @@
-function [arreglo_codificado, dict, cantidad_caracteres_distintos, longitud_minima, longitud_promedio, eficiencia] = cod_fuente(nombre_archivo_in_codificacion)
-    % CODIFICACIÓN DE FUENTE
+ %% CODIFICACIÓN DE FUENTE
 
+function [arreglo_codificado, dict, cantidad_caracteres_distintos, longitud_minima, longitud_promedio, eficiencia] = cod_fuente(nombre_archivo_in_codificacion)
     nombre_archivo_out_codificacion = "salida_codificacion.txt";
     archivo = abrir_archivo_lectura(nombre_archivo_in_codificacion);
 
@@ -20,14 +20,14 @@ function [arreglo_codificado, dict, cantidad_caracteres_distintos, longitud_mini
     [dict, avglen] = huffmandict(caracteres, probabilidades / sum(probabilidades));
 
     disp('Buscando las longitudes mínima y promedio...');
-    longitud_minima = entropia / log2(2); % = entropia
+    longitud_minima = entropia / log2(2); % = entropía porque log2(2) = 1
     longitud_promedio = avglen;
     eficiencia = entropia / avglen;
 
     %Se codifica el archivo en función del diccionario armado
     arreglo_codificado = codificar_archivo(nombre_archivo_in_codificacion, nombre_archivo_out_codificacion, dict, cantidad_caracteres_distintos, cantidad_caracteres_totales, avglen);
 end
-%% FUNCIONES DE CODIFICACIÓN DE FUENTE 
+%% FUNCIONES AUXILIARES PARA LA CODIFICACIÓN DE FUENTE 
 
 function archivo = abrir_archivo_lectura(nombre_archivo)
     disp('Abriendo archivo...')
@@ -45,11 +45,10 @@ function [caracteres, probabilidades, cantidad_caracteres_distintos, cantidad_ca
     cantidad_apariciones = 0;
     caracter = fread(archivo, 1, '*char');
     while caracter ~= char(0)
-       % caracter = fread(archivo, 1, '*char')
         caracter_in_caracteres = false;
         for i=1:cantidad_caracteres_distintos
             if caracter == caracteres(i)
-                amount_apariciones(i) = cantidad_apariciones(i) + 1;
+                cantidad_apariciones(i) = cantidad_apariciones(i) + 1;
                 caracter_in_caracteres = true;
             end
         end 
@@ -87,8 +86,7 @@ end
 
 function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_archivo_salida, diccionario, cant_distintos, cant_totales, avglen)
     % Se agrega en una suerte de "header" al arreglo indicando una cantidad
-    % impar de veces (se elije 3, quizás con más ruido haya que hacerlo 5,
-    % lo vemos) la cantidad total de caracteres de entrada del archivo. 
+    % impar de veces (se elije 3) la cantidad total de caracteres de entrada del archivo. 
     cant_totales_64 = uint64(cant_totales);
     cant_totales_en_bits = dec2bin(cant_totales_64, 64);
     arreglo_bits_cabecera = cant_totales_en_bits - '0';
@@ -110,41 +108,29 @@ function salida_codificacion = codificar_archivo(nombre_archivo_entrada, nombre_
     while caracter ~= char(0)
 
         int_char = uint8(caracter);
-        
-        % checkeo si el carácter existe en el mapa, y si no existe lo añado
+        % se verifica si el carácter ya se encuentra en el hash, y si no
+        % existe se lo añade al mismo
         if isKey(mapaHuffman, int_char)
             codigoBinario = mapaHuffman(int_char);
             largoCodigo = length(codigoBinario);
-            
             if indice + largoCodigo > length(salida_codificacion)
                 fprintf("Redimensión del arreglo de codificación de fuente\n");
                 salida_codificacion = [salida_codificacion, zeros(1, 3* length(salida_codificacion))];
             end
-            
             salida_codificacion(indice: (indice - 1 + largoCodigo)) = codigoBinario;
             palabra = sprintf('%d', codigoBinario);
             fwrite(archivo_salida, palabra, 'char');
-            
             caracter = fread(archivo_entrada, 1, '*char');
             indice = indice + largoCodigo;
         else
-            % Por si lee un carácter que por algún motivo no quedó registrado
             caracter = fread(archivo_entrada, 1, '*char');
         end
     end
     
-    % if indice + length(diccionario{cant_distintos, 2}) > length(salida_codificacion)
-    %     fprintf("Redimensión del arreglo de codificación de fuente para el end of file\n");
-    %     salida_codificacion = [salida_codificacion, zeros(1, length(diccionario{cant_distintos, 2}))];
-    % end
-    % salida_codificacion(indice: (indice - 1 + length(diccionario{cant_distintos, 2}))) = diccionario{cant_distintos, 2};
-    % indice = indice + length(diccionario{cant_distintos, 2});
     if indice > length(salida_codificacion)
         salida_codificacion = salida_codificacion(1:indice + 1);
     end
-    %if mod(length(salida_codificacion), 12) ~= 0
-    %    salida_codificacion = [salida_codificacion, zeros(1, 12 - mod(length(salida_codificacion)))]; %acá chequear este límite para la modulación 
-    %end
+
     fwrite(archivo_salida, char(0), 'char');
     disp('Cerrando archivos...')
     fclose(archivo_salida);

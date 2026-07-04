@@ -6,7 +6,7 @@ function [simbolosCanal]=efectosCanal(simbolosModulados,min_atenuacion,max_atenu
     N0 = energiaSimbolo / SNRlin;
     v = N0/2; %N0, densidad espectral de potencia
 
-    %cantidad de muestras depende del tipo de modulación
+    %la cantidad de muestras depende del tipo de modulación
     switch upper(modulacionTipo)
     
         case 'PSK'
